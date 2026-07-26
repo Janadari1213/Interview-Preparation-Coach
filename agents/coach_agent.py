@@ -1,8 +1,9 @@
-"""Coach Agent — Evaluates candidate answers using two-step draft and self-critique reflection."""
+"""Coach Agent — Evaluates candidate answers using two-step draft and self-critique reflection with Groq fallback."""
 
 import re
 from protocol.messages import CoachRequest, CoachResponse
 from models.openrouter_client import call_openrouter
+from models.groq_client import call_groq
 
 
 def parse_score(llm_output: str, fallback_score: int = 7) -> int:
@@ -55,6 +56,11 @@ def evaluate(request: CoachRequest) -> CoachResponse:
     )
 
     draft_output = call_openrouter(prompt=draft_prompt, system=draft_system)
+    
+    # Fallback to Groq if OpenRouter fails or key is unconfigured
+    if not draft_output or draft_output.startswith("[OpenRouter Error]"):
+        draft_output = call_groq(prompt=draft_prompt, system=draft_system)
+
     draft_score = parse_score(draft_output, fallback_score=7)
 
     # Step 2: Self-Critique Reflection Step
@@ -74,8 +80,10 @@ def evaluate(request: CoachRequest) -> CoachResponse:
     )
 
     final_output = call_openrouter(prompt=critique_prompt, system=critique_system)
-    
-    if final_output and not final_output.startswith("[OpenRouter Error]"):
+    if not final_output or final_output.startswith("[OpenRouter Error]"):
+        final_output = call_groq(prompt=critique_prompt, system=critique_system)
+
+    if final_output and not final_output.startswith("[Groq Error]"):
         score_match = re.search(r'FINAL_SCORE:\s*(\d+)', final_output, re.IGNORECASE)
         final_score = int(score_match.group(1)) if score_match else parse_score(final_output, fallback_score=draft_score)
         

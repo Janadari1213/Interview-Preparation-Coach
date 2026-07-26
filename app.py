@@ -551,10 +551,15 @@ with tab1:
                 elif score >= 6:
                     st.info(f"**👍 Good Attempt! Score: {score}/{max_s}**\n\n{c_res.feedback}")
                 else:
-                    st.warning(f"**💪 Needs Improvement. Score: {score}/{max_s}**\n\n{c_res.feedback}")
+                    st.warning(f"**💪 Needs Improvement! Score: {score}/{max_s}**\n\n{c_res.feedback}")
 
-                with st.expander("🔍 Compare with Reference Answer Key"):
-                    st.info(f"**Reference Answer Concept:**\n\n{q_data.correct_answer}")
+                # Automatically show Correct Model Answer when score is less than 8
+                if score < 8:
+                    st.markdown("#### 💡 Expected Model Answer & Key Concepts:")
+                    st.warning(f"**Correct Reference Answer:**\n\n{q_data.correct_answer}")
+                else:
+                    with st.expander("🔍 Compare with Reference Answer Key"):
+                        st.info(f"**Reference Answer Concept:**\n\n{q_data.correct_answer}")
 
 # -------------------------------------------------
 # Tab 2 – Interview Technique Coaching (Detailed & Seamless Strategy Studio)
