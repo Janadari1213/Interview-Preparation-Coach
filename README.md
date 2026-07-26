@@ -1,179 +1,223 @@
 # 🎓 Interview Preparation Coach
 
-An Agentic AI Streamlit Application built for university module **IT41043 (Agentic AI)**.
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-FF4B4B.svg)](https://streamlit.io/)
+[![Groq Llama-3.1](https://img.shields.io/badge/LLM-Groq%20Llama--3.1--8B-orange.svg)](https://groq.com/)
+[![OpenRouter GPT-4o](https://img.shields.io/badge/LLM-OpenRouter%20GPT--4o--Mini-purple.svg)](https://openrouter.ai/)
+[![Chroma Vector DB](https://img.shields.io/badge/RAG-ChromaDB-green.svg)](https://www.trychroma.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Academic Module](https://img.shields.io/badge/Module-IT41043-lightgrey.svg)]()
+
+> **An Agentic AI Multi-Agent Preparation, Strategy Coaching & Industry Outreach Platform.**  
+> Built as Phase 5 (Final Phase) for academic module IT41043 (Due: 27th July 2026).
 
 ---
 
-## 📌 Project Description
+## 📌 Project Overview
 
-**Interview Preparation Coach** is an agentic AI system designed to solve the real-world problem of fragmented and unguided interview preparation for university students and job seekers. Traditional interview prep relies on static Q&A lists without personalized evaluation, real-time feedback, or structural interview guidance. 
+**Interview Preparation Coach** is an intelligent, full-stack multi-agent platform designed to help job candidates master technical interviews, behavioral questions, and professional industry networking. Driven by an autonomous orchestration architecture, the platform integrates **Retrieval-Augmented Generation (RAG)** over role-specific vector databases, a **ReAct Content Evaluation Agent**, and a **Two-Stage Self-Critique Evaluation Engine**.
 
-This application provides a multi-panel, interactive coaching experience across three core domains:
-1. **🎯 Practice Questions Panel (`practice_questions`)**: Offers interactive technical and behavioral questions, evaluates student answers using a two-step AI reflection loop, awards scores out of 10, and updates session metrics live.
-2. **💡 How to Face an Interview (`how_to_face_interview`)**: Delivers structured interview technique guidance, including the STAR methodology, body language tips, and strategies for avoiding common candidate mistakes.
-3. **🤝 Connect with Industry Experts (`connect_with_experts`)**: Provides actionable LinkedIn networking strategies and ready-to-use professional outreach message templates.
+The system dynamically adapts across four target professional domains:
+- 💻 **Software Engineering** (OOP, System Architecture, DBMS, Networks, OS)
+- 📊 **Data Analysis & Engineering** (SQL Window Functions, A/B Testing, ETL Pipelines, Pandas)
+- 📦 **Product Management** (RICE Framework, Product Discovery, DAU/MAU Metrics, Strategy)
+- 🎨 **UX/UI Design** (Nielsen Heuristics, Card Sorting, Wireframing, Accessibility Frameworks)
 
 ---
 
-## 🏗️ System Architecture
+## 🖥️ Application Showcase
 
-```text
-                               +----------------------------------+
-                               |     Streamlit UI (app.py)        |
-                               +----------------------------------+
-                                                |
-                                                v
-                               +----------------------------------+
-                               |   InterviewOrchestrator Agent    |
-                               |    (agents/orchestrator.py)      |
-                               +----------------------------------+
-                                 /              |               \
-                                /               |                \
-                               v                v                 v
-                 +-------------------+ +------------------+ +------------------+
-                 |   Router Agent    | | Question Agent   | |   Coach Agent    |
-                 | (router_agent.py) | |(question_agent.py| | (coach_agent.py) |
-                 +-------------------+ +------------------+ +------------------+
-                           |                    |                     |
-                           v                    v                     v
-                    +------------+     +------------------+    +--------------+
-                    |  Groq SDK  |     |  Chroma DB (RAG) |    |  OpenRouter  |
-                    | (Llama 3.1)|     |  & ReAct Step    |    | (GPT-4o-mini)|
-                    +------------+     +------------------+    +--------------+
+![Interview Preparation Coach Home UI](assets/home_ui.png)
+
+---
+
+## ✨ Key Features & Capabilities
+
+### 🎯 1. Interactive Practice Studio (Tab 1)
+- **Role-Aware Technical Question Bank**: Vector-retrieved questions customized for Software Engineers, Data Analysts, Product Managers, and UX Designers.
+- **Dynamic Complexity Selector**: Switch between `Easy` (Fundamentals), `Medium` (Standard Interview), and `Hard` (Senior/Lead) complexity levels on the fly.
+- **Clean Card Presentation**: Custom glassmorphism UI containers featuring role, topic, and difficulty badges with **zero raw markdown leaks**.
+- **💡 Interactive Hint Expander**: On-demand hint drawers providing core concept guidance before answering.
+- **✍️ Real-Time Response Gauge**: Live word counter tracking response length.
+
+### 📝 2. Autonomous Dual-LLM AI Evaluation & Reflection Engine
+- **Two-Stage Evaluation**: 
+  1. *Draft Evaluation*: Compares candidate response against vector reference answer key for conceptual accuracy.
+  2. *Self-Critique Reflection*: Senior Reviewer prompt revises draft score for fairness and constructiveness.
+- **Resilient Multi-Model Failover**: Primary evaluation driven by OpenRouter (`openai/gpt-4o-mini`) with automatic fallback to Groq (`llama-3.1-8b-instant`).
+- **💡 Automatic Correct Answer Display**: Automatically reveals the **Expected Model Answer Box** right on screen whenever an answer receives a score lower than 8.
+
+### 📊 3. Interactive Performance Report Dashboard
+- **Performance Tier Badging**: Automatically classifies candidate session performance into *Master Class* (90%+), *Solid Competency* (70%+), or *Practice Recommended* (<65%).
+- **📈 Interactive Score Bar Chart**: Renders `st.bar_chart` visual plotting candidate score per question.
+- **🔍 Color-Coded Review Accordions**: Expandable history cards color-coded by score (🟢 Green for 8-10, 🟡 Amber for 6-7, 🔴 Red for 0-5).
+- **📥 One-Click Export**: Download a full Markdown report (`interview_report.md`) for offline review.
+
+### 💡 4. Interview Technique & Strategy Studio (Tab 2)
+- **🌟 Interactive STAR Methodology Builder**: 4-step interactive workspace (Situation, Task, Action, Result) allowing candidates to draft, preview, and refine behavioral answers in real-time.
+- **🤖 Unified RAG Strategy Tips**: Retrieves structured interview techniques from vector storage, displaying clean **Candidate Pitfall (❌)** vs **Coach Action Plan (💡)** side-by-side cards.
+
+### 🤝 5. Expert Networking & Outreach Studio (Tab 3)
+- **🚀 3-Step Networking Playbook**: Visual guidance cards breaking down Target Prospecting, 300-Char Hook Notes, and 15-Minute Coffee Chats.
+- **✉️ Interactive Outreach Template Builder**: Customizable message generator for 5 scenarios (*Alumni Connection*, *Informational Interview*, *Post-Event Follow-up*, *Referral Request*, *Role-Specific Cold Outreach*).
+- **🤖 RAG Strategic Networking Advice**: Vector retrieval pulling real networking strategy insights without returning raw template placeholders.
+
+---
+
+## 🏗️ Multi-Agent System Architecture
+
+The platform is powered by four decoupled, specialized agents communicating via typed dataclasses (`protocol/messages.py`):
+
+```
+                       ┌────────────────────────┐
+                       │   Streamlit Web UI     │
+                       └───────────┬────────────┘
+                                   │
+                                   ▼
+                       ┌────────────────────────┐
+                       │ InterviewOrchestrator  │
+                       └───────────┬────────────┘
+                                   │
+         ┌─────────────────────────┼─────────────────────────┐
+         │                         │                         │
+         ▼                         ▼                         ▼
+┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐
+│   RouterAgent    │      │  QuestionAgent   │      │    CoachAgent    │
+│ (Classifies topic│      │(ReAct Retrieve/  │      │(Draft + Critique │
+│   & collection)  │      │   Generate)      │      │ LLM Evaluation)  │
+└────────┬─────────┘      └────────┬─────────┘      └────────┬─────────┘
+         │                         │                         │
+         └─────────────────────────┼─────────────────────────┘
+                                   │
+                                   ▼
+                       ┌────────────────────────┐
+                       │ ChromaDB Vector Engine │
+                       │(3 Embedding Collections│
+                       └────────────────────────┘
+```
+
+### Agent Roles:
+1. **`InterviewOrchestrator`** (`agents/orchestrator.py`): Central session state manager coordinating requests between agents and maintaining running history and score statistics.
+2. **`RouterAgent`** (`agents/router_agent.py`): Classifies panel intent and maps queries to target vector collections (`technical_qa`, `interview_tips`, `networking_advice`).
+3. **`QuestionAgent`** (`agents/question_agent.py`): Executes ReAct retrieve-vs-generate workflow over ChromaDB vector embeddings (`all-MiniLM-L6-v2`) and parses clean question prompts.
+4. **`CoachAgent`** (`agents/coach_agent.py`): Runs two-stage draft evaluation and self-critique reflection with multi-model failover (OpenRouter → Groq).
+
+---
+
+## 📁 Repository Directory Structure
+
+```
+interview-prep-coach/
+├── agents/
+│   ├── coach_agent.py          # Dual-stage evaluation agent with model failover
+│   ├── orchestrator.py         # Multi-agent session orchestrator
+│   ├── question_agent.py       # ReAct retrieval & question agent
+│   └── router_agent.py         # Intent classification & collection router
+├── assets/
+│   └── home_ui.png             # UI Screenshot for README
+├── kb/
+│   ├── documents/              # Markdown knowledge base source files
+│   │   ├── technical_qa/       # Q&A datasets (SE, Data Analyst, PM, UX)
+│   │   ├── interview_tips/     # STAR method, body language, mistakes
+│   │   └── networking_advice/  # Prospecting, informational chats, referrals
+│   ├── ingest.py               # Vector database ingestion pipeline script
+│   └── retriever.py            # ChromaDB similarity retriever & metadata filter
+├── models/
+│   ├── groq_client.py          # Groq Llama-3.1 API wrapper
+│   └── openrouter_client.py    # OpenRouter GPT-4o-mini API wrapper
+├── protocol/
+│   └── messages.py             # Typed dataclasses for inter-agent messaging
+├── tests/
+│   ├── test_agents.py          # End-to-end agent orchestration test suite
+│   └── test_retrieval.py       # ChromaDB vector retrieval test suite
+├── .env                        # Environment variables (API keys)
+├── .gitignore                  # Git ignore file (.env, venv, chromadb)
+├── app.py                      # Main Streamlit UI web application
+├── README.md                   # Project documentation
+└── requirements.txt            # Python dependencies
 ```
 
 ---
 
-## ⚡ Setup & Local Execution Instructions
+## ⚡ Getting Started & Setup Guide
 
-### Prerequisites
-- Python 3.10+
-- Git
+### 1. Prerequisites
+- Python `3.10` or higher installed on your system.
+- Git installed.
 
-### Step 1: Clone Repository & Create Virtual Environment
+### 2. Clone Repository & Setup Virtual Environment
 ```bash
+# Clone repository
 git clone https://github.com/Janadari1213/Interview-Preparation-Coach.git
 cd Interview-Preparation-Coach/interview-prep-coach
+
+# Create virtual environment
 python -m venv venv
+
+# Activate virtual environment
+# Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+# macOS/Linux:
+source venv/bin/activate
 ```
 
-Activate the virtual environment:
-- **Windows (PowerShell):** `.\venv\Scripts\Activate.ps1`
-- **Linux/macOS:** `source venv/bin/activate`
-
-### Step 2: Install Dependencies
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 3: Configure API Keys
-Create a `.env` file in the project root:
+### 4. Configure Secrets / API Keys
+Create a `.env` file in the project root (`interview-prep-coach/.env`) or configure `.streamlit/secrets.toml`:
+
 ```env
-GROQ_API_KEY=your_groq_api_key_here
-OPENROUTER_API_KEY=your_openrouter_api_key_here
+GROQ_API_KEY=gsk_your_groq_api_key_here
+OPENROUTER_API_KEY=sk-or-v1-your_openrouter_api_key_here
 ```
 
-*(Note: For local testing with Streamlit, `.streamlit/secrets.toml` can also be configured with the same key names).*
+### 5. Ingest Knowledge Base into Vector Database
+Run the ingestion pipeline to embed markdown knowledge documents into ChromaDB:
 
-### Step 4: Run Knowledge Base Ingestion Pipeline
-Build the Chroma vector database collections:
 ```bash
 python kb/ingest.py
 ```
 
-### Step 5: Launch Streamlit Application
+*Output summary:*
+```
+--- Ingestion Summary ---
+Collection 'technical_qa': 43 chunks loaded.
+Collection 'interview_tips': 8 chunks loaded.
+Collection 'networking_advice': 6 chunks loaded.
+-------------------------
+```
+
+### 6. Run the Application
+Launch the Streamlit web application:
+
 ```bash
-streamlit run app.py
+python -m streamlit run app.py
+```
+
+Open your browser at **`http://localhost:8501`**.
+
+---
+
+## 🧪 Running Unit & Integration Tests
+
+Run the automated test suite to verify agent orchestration and vector retrieval:
+
+```bash
+# Test Agent Orchestration Pipeline
+python tests/test_agents.py
+
+# Test ChromaDB Vector Retrieval
+python tests/test_retrieval.py
 ```
 
 ---
 
-## 🤖 Model Choice & LLM Trade-off Comparison
+## 📜 Academic Metadata & License
 
-| Model | Provider | Assignment Role | Latency | Cost | Reasoning / Quality Justification |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Llama 3.1 8B Instant** | Groq | Router Agent & ReAct Decision Step | Extremely Low (~200ms) | Free / Minimal | Fast classification and decision-making where speed is critical to UI responsiveness. |
-| **GPT-4o-mini** | OpenRouter | Question Rephrasing & Coach Reflection | Low (~800ms) | Low Cost | High reasoning capability for multi-step answer evaluation, nuanced scoring, and self-critique. |
-
----
-
-## 💬 Agent-to-Agent Communication Protocol
-
-Agents exchange strongly typed dataclasses defined in [`protocol/messages.py`](file:///c:/Users/jandari/Music/Interview-Preparation-Coach/interview-prep-coach/protocol/messages.py). Each message includes a `.to_dict()` method for logging and JSON-style message formatting.
-
-### Sequence Diagram
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant UI as Streamlit UI
-    participant Orchestrator as InterviewOrchestrator
-    participant Router as Router Agent
-    participant Question as Question Agent
-    participant KB as Chroma Retriever
-    participant Coach as Coach Agent
-
-    User->>UI: Selects Panel & Clicks "Get Question"
-    UI->>Orchestrator: start_panel("practice_questions")
-    Orchestrator->>Router: RouterRequest(panel)
-    Router-->>Orchestrator: RouterResponse(collection, difficulty)
-    Orchestrator->>Question: QuestionRequest(collection, difficulty)
-    Question->>KB: retrieve(collection, difficulty)
-    KB-->>Question: Top Chunk Data
-    Question-->>Orchestrator: QuestionResponse(question, correct_answer, topic)
-    Orchestrator-->>UI: Displays Question & Input Area
-
-    User->>UI: Submits Answer Text
-    UI->>Orchestrator: submit_answer(user_answer_text)
-    Orchestrator->>Coach: CoachRequest(question, correct_answer, user_answer)
-    Note over Coach: Draft Score & Self-Critique Reflection Loop
-    Coach-->>Orchestrator: CoachResponse(score, max_score, feedback)
-    Orchestrator-->>UI: Updates Live Score & Renders Feedback
-```
-
----
-
-## 📚 RAG Pipeline & Retrieval Evaluation
-
-The Retrieval-Augmented Generation (RAG) system reads markdown documents across 3 dedicated subfolders in `kb/documents/` and persists them to 3 Chroma DB collections in `kb/chroma_db/`:
-- **`technical_qa`**: 13 Q&A pairs covering OOP, Networking, DBMS, and Operating Systems.
-- **`interview_tips`**: 8 section chunks covering STAR method, common mistakes, and body language.
-- **`networking_advice`**: 5 section chunks covering LinkedIn outreach and message templates.
-
-### Chunking & Embedding Strategy
-- **Chunking**: Markdown files are split strictly on `## ` section headings so that individual Q&A pairs or advice sections form complete, un-fragmented semantic units.
-- **Embeddings**: Chunks are embedded using `sentence-transformers/all-MiniLM-L6-v2`.
-
-### Retrieval Benchmark Evaluation Results (`tests/test_retrieval.py`)
-
-| # | Query | Target Collection | Similarity Score | Retrieved Source File | Relevance Evaluation |
-| :-: | :--- | :--- | :-: | :--- | :--- |
-| **1** | *"What is polymorphism?"* | `technical_qa` | **0.7615** | `oop_questions.md` | **Exact match**: Retrieved polymorphism definition and implementation details. |
-| **2** | *"How does TCP differ from UDP?"* | `technical_qa` | **0.8337** | `networking_questions.md` | **Exact match**: Retrieved TCP connection-oriented vs UDP comparison chunk. |
-| **3** | *"How should I structure a behavioral answer?"* | `interview_tips` | **0.4044** | `star_method.md` | **High relevance**: Retrieved STAR methodology framework breakdown. |
-| **4** | *"What's a common mistake candidates make?"* | `interview_tips` | **0.7104** | `common_mistakes.md` | **Exact match**: Retrieved candidate mistakes listing. |
-| **5** | *"How do I message someone on LinkedIn for networking?"* | `networking_advice` | **0.6198** | `linkedin_outreach.md` | **Exact match**: Retrieved LinkedIn networking and cold outreach strategy. |
-
----
-
-## 🧩 Agentic Design Patterns Implemented
-
-1. **Orchestrator-Worker Pattern** ([`agents/orchestrator.py`](file:///c:/Users/jandari/Music/Interview-Preparation-Coach/interview-prep-coach/agents/orchestrator.py)): Central `InterviewOrchestrator` manages session state and delegates domain tasks to dedicated worker agents without calling LLMs directly.
-2. **Router Pattern** ([`agents/router_agent.py`](file:///c:/Users/jandari/Music/Interview-Preparation-Coach/interview-prep-coach/agents/router_agent.py)): Dynamically determines target knowledge collection and difficulty rating (`easy`, `medium`, `hard`) using Groq Llama 3.1 8B.
-3. **ReAct (Reason + Act) Pattern** ([`agents/question_agent.py`](file:///c:/Users/jandari/Music/Interview-Preparation-Coach/interview-prep-coach/agents/question_agent.py)): Evaluates retrieved KB chunks to decide if content is clear as-is (`AS_IS`) or requires light rephrasing (`REWRITE`) before presenting to the user.
-4. **Reflection / Self-Critique Pattern** ([`agents/coach_agent.py`](file:///c:/Users/jandari/Music/Interview-Preparation-Coach/interview-prep-coach/agents/coach_agent.py)): Employs a 2-step evaluation loop (Draft Evaluation followed by Self-Critique Reflection) to verify fair scoring and prevent penalizing valid alternate candidate phrasing.
-
----
-
-## 🌐 Live Streamlit Demo
-
-**Live App URL:** [TO BE ADDED AFTER DEPLOYMENT]
-
----
-
-## ⚠️ Known Limitations
-
-- **Corpus Size**: The Knowledge Base contains a focused dataset of 26 total chunks across technical, behavioral, and networking topics.
-- **Single-Session Storage**: Session scores and history are stored in Streamlit `st.session_state` and reset when refreshing the browser or clicking "Reset Session".
-- **Rate Limits**: Dependent on free-tier API quotas for Groq and OpenRouter; built-in error shielding prevents UI crashes if limits are reached.
+- **Course Module**: IT41043 — Agentic AI Applications
+- **Project Phase**: Phase 5 (Final Phase - Complete Delivery)
+- **Submission Date**: 27th July 2026
+- **License**: [MIT License](LICENSE)
