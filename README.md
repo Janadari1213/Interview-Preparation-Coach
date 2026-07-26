@@ -10,10 +10,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Academic Module](https://img.shields.io/badge/Module-IT41043-lightgrey.svg)]()
 
-> 🚀 **Live Production Web Application**: [https://interview-preparation-coach0.streamlit.app/](https://interview-preparation-coach0.streamlit.app/)  
-> **An Agentic AI Multi-Agent Preparation, Strategy Coaching & Industry Outreach Platform.**  
-> *Developed for Academic Module IT41043 — Final Project Phase (Submission Date: 27th July 2026).*
-
 ---
 
 ## 📌 Executive Summary
@@ -22,7 +18,7 @@
 
 The platform provides tailored coaching across four professional domains: **Software Engineering**, **Data Analysis**, **Product Management**, and **UX Design**.
 
----
+## Live Production Web Application: https://interview-preparation-coach0.streamlit.app
 
 ## 🖥️ System Interface
 
