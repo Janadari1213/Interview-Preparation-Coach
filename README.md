@@ -9,98 +9,84 @@
 [![Academic Module](https://img.shields.io/badge/Module-IT41043-lightgrey.svg)]()
 
 > **An Agentic AI Multi-Agent Preparation, Strategy Coaching & Industry Outreach Platform.**  
-> Built as Phase 5 (Final Phase) for academic module IT41043 (Due: 27th July 2026).
+> *Developed for Academic Module IT41043 — Final Project Phase (Submission Date: 27th July 2026).*
 
 ---
 
-## 📌 Project Overview
+## 📌 Executive Summary
 
-**Interview Preparation Coach** is an intelligent, full-stack multi-agent platform designed to help job candidates master technical interviews, behavioral questions, and professional industry networking. Driven by an autonomous orchestration architecture, the platform integrates **Retrieval-Augmented Generation (RAG)** over role-specific vector databases, a **ReAct Content Evaluation Agent**, and a **Two-Stage Self-Critique Evaluation Engine**.
+**Interview Preparation Coach** is a full-stack agentic platform designed to assist job candidates in mastering technical interviews, behavioral questions, and professional industry networking. Driven by an autonomous multi-agent architecture, the system combines **Retrieval-Augmented Generation (RAG)** over role-specific vector databases with **dual-stage LLM evaluation and reflection**.
 
-The system dynamically adapts across four target professional domains:
-- 💻 **Software Engineering** (OOP, System Architecture, DBMS, Networks, OS)
-- 📊 **Data Analysis & Engineering** (SQL Window Functions, A/B Testing, ETL Pipelines, Pandas)
-- 📦 **Product Management** (RICE Framework, Product Discovery, DAU/MAU Metrics, Strategy)
-- 🎨 **UX/UI Design** (Nielsen Heuristics, Card Sorting, Wireframing, Accessibility Frameworks)
+The platform provides tailored coaching across four professional domains: **Software Engineering**, **Data Analysis**, **Product Management**, and **UX Design**.
 
 ---
 
-## 🖥️ Application Showcase
+## 🖥️ System Interface
 
 ![Interview Preparation Coach Home UI](assets/home_ui.png)
 
 ---
 
-## ✨ Key Features & Capabilities
+## 🤖 Agent Architecture & Workload Breakdown
 
-### 🎯 1. Interactive Practice Studio (Tab 1)
-- **Role-Aware Technical Question Bank**: Vector-retrieved questions customized for Software Engineers, Data Analysts, Product Managers, and UX Designers.
-- **Dynamic Complexity Selector**: Switch between `Easy` (Fundamentals), `Medium` (Standard Interview), and `Hard` (Senior/Lead) complexity levels on the fly.
-- **Clean Card Presentation**: Custom glassmorphism UI containers featuring role, topic, and difficulty badges with **zero raw markdown leaks**.
-- **💡 Interactive Hint Expander**: On-demand hint drawers providing core concept guidance before answering.
-- **✍️ Real-Time Response Gauge**: Live word counter tracking response length.
+The platform operates using four decoupled, specialized agents communicating via typed messaging protocols (`protocol/messages.py`).
 
-### 📝 2. Autonomous Dual-LLM AI Evaluation & Reflection Engine
-- **Two-Stage Evaluation**: 
-  1. *Draft Evaluation*: Compares candidate response against vector reference answer key for conceptual accuracy.
-  2. *Self-Critique Reflection*: Senior Reviewer prompt revises draft score for fairness and constructiveness.
-- **Resilient Multi-Model Failover**: Primary evaluation driven by OpenRouter (`openai/gpt-4o-mini`) with automatic fallback to Groq (`llama-3.1-8b-instant`).
-- **💡 Automatic Correct Answer Display**: Automatically reveals the **Expected Model Answer Box** right on screen whenever an answer receives a score lower than 8.
+```
+                              ┌────────────────────────┐
+                              │   Streamlit Web UI     │
+                              └───────────┬────────────┘
+                                          │
+                                          ▼
+                              ┌────────────────────────┐
+                              │ InterviewOrchestrator  │
+                              └───────────┬────────────┘
+                                          │
+                ┌─────────────────────────┼─────────────────────────┐
+                │                         │                         │
+                ▼                         ▼                         ▼
+       ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐
+       │   RouterAgent    │      │  QuestionAgent   │      │    CoachAgent    │
+       │ (Intent Routing) │      │ (ReAct Content)  │      │(2-Stage Evaluation│
+       └────────┬─────────┘      └────────┬─────────┘      └────────┬─────────┘
+                │                         │                         │
+                └─────────────────────────┼─────────────────────────┘
+                                          │
+                                          ▼
+                              ┌────────────────────────┐
+                              │ ChromaDB Vector Engine │
+                              └────────────────────────┘
+```
 
-### 📊 3. Interactive Performance Report Dashboard
-- **Performance Tier Badging**: Automatically classifies candidate session performance into *Master Class* (90%+), *Solid Competency* (70%+), or *Practice Recommended* (<65%).
-- **📈 Interactive Score Bar Chart**: Renders `st.bar_chart` visual plotting candidate score per question.
-- **🔍 Color-Coded Review Accordions**: Expandable history cards color-coded by score (🟢 Green for 8-10, 🟡 Amber for 6-7, 🔴 Red for 0-5).
-- **📥 One-Click Export**: Download a full Markdown report (`interview_report.md`) for offline review.
+### Agent Workload Matrix
 
-### 💡 4. Interview Technique & Strategy Studio (Tab 2)
-- **🌟 Interactive STAR Methodology Builder**: 4-step interactive workspace (Situation, Task, Action, Result) allowing candidates to draft, preview, and refine behavioral answers in real-time.
-- **🤖 Unified RAG Strategy Tips**: Retrieves structured interview techniques from vector storage, displaying clean **Candidate Pitfall (❌)** vs **Coach Action Plan (💡)** side-by-side cards.
-
-### 🤝 5. Expert Networking & Outreach Studio (Tab 3)
-- **🚀 3-Step Networking Playbook**: Visual guidance cards breaking down Target Prospecting, 300-Char Hook Notes, and 15-Minute Coffee Chats.
-- **✉️ Interactive Outreach Template Builder**: Customizable message generator for 5 scenarios (*Alumni Connection*, *Informational Interview*, *Post-Event Follow-up*, *Referral Request*, *Role-Specific Cold Outreach*).
-- **🤖 RAG Strategic Networking Advice**: Vector retrieval pulling real networking strategy insights without returning raw template placeholders.
+| Agent Name | System Role | Primary Workload & Responsibilities | Models & Dependencies | Input / Output Schema |
+| :--- | :--- | :--- | :--- | :--- |
+| **`InterviewOrchestrator`** | **Session Coordinator** | • Manages session state & history log<br>• Coordinates sub-agent execution flow<br>• Calculates running scores & accuracy %<br>• Generates downloadable Markdown reports | Python Dataclasses, Streamlit Session State | `RouterRequest` ➔ `QuestionResponse`<br>`CoachRequest` ➔ `CoachResponse` |
+| **`RouterAgent`** | **Intent Classifier** | • Classifies user panel intent<br>• Maps panel requests to target Chroma collections (`technical_qa`, `interview_tips`, `networking_advice`) | Rule-based Routing Engine | `RouterRequest` ➔ `RouterResponse` |
+| **`QuestionAgent`** | **Content & ReAct Agent** | • Queries ChromaDB vector database<br>• Fast-path clean question retrieval<br>• ReAct evaluate-and-rewrite workflow<br>• Eliminates raw metadata leaks from prompts | ChromaDB, SentenceTransformers (`all-MiniLM-L6-v2`), Groq, OpenRouter | `QuestionRequest` ➔ `QuestionResponse` |
+| **`CoachAgent`** | **Dual-Stage Evaluation Agent** | • **Stage 1 (Draft)**: Concept comparison vs answer key<br>• **Stage 2 (Reflection)**: Senior reviewer self-critique<br>• Assigns 0–10 score & detailed feedback<br>• Automatic failover (OpenRouter ➔ Groq) | OpenRouter (`gpt-4o-mini`), Groq (`llama-3.1-8b-instant`) | `CoachRequest` ➔ `CoachResponse` |
 
 ---
 
-## 🏗️ Multi-Agent System Architecture
+## 🎯 Studio Capabilities & Features
 
-The platform is powered by four decoupled, specialized agents communicating via typed dataclasses (`protocol/messages.py`):
+| Studio Panel | Core Capability | Workload & Operations | Interactive UI Features |
+| :--- | :--- | :--- | :--- |
+| **🎯 Practice Studio** | Technical Q&A Practice | Retrieves role-specific technical questions filtered by complexity (`Easy`, `Medium`, `Hard`). | • Hint Expander<br>• Live Word Counter<br>• Auto Model Answer Box (`Score < 8`) |
+| **📝 Performance Report** | Session Analytics | Evaluates candidate answers, calculates running score/accuracy, and compiles session summary. | • Score Bar Chart (`st.bar_chart`) <br>• Color-Coded Cards (🟢/🟡/🔴)<br>• Downloadable `.md` Report |
+| **💡 Technique Studio** | Behavioral Coaching | Guides candidates through behavioral interviewing and body language strategy. | • 4-Step STAR Method Builder<br>• RAG Pitfall vs. Solution Cards |
+| **🤝 Outreach Studio** | Industry Networking | Outlines referral strategies, cold outreach hooks, and 15-minute coffee chat structure. | • 3-Step Networking Playbook<br>• Customizable Template Generator<br>• RAG Strategic Advice Cards |
 
-```
-                       ┌────────────────────────┐
-                       │   Streamlit Web UI     │
-                       └───────────┬────────────┘
-                                   │
-                                   ▼
-                       ┌────────────────────────┐
-                       │ InterviewOrchestrator  │
-                       └───────────┬────────────┘
-                                   │
-         ┌─────────────────────────┼─────────────────────────┐
-         │                         │                         │
-         ▼                         ▼                         ▼
-┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐
-│   RouterAgent    │      │  QuestionAgent   │      │    CoachAgent    │
-│ (Classifies topic│      │(ReAct Retrieve/  │      │(Draft + Critique │
-│   & collection)  │      │   Generate)      │      │ LLM Evaluation)  │
-└────────┬─────────┘      └────────┬─────────┘      └────────┬─────────┘
-         │                         │                         │
-         └─────────────────────────┼─────────────────────────┘
-                                   │
-                                   ▼
-                       ┌────────────────────────┐
-                       │ ChromaDB Vector Engine │
-                       │(3 Embedding Collections│
-                       └────────────────────────┘
-```
+---
 
-### Agent Roles:
-1. **`InterviewOrchestrator`** (`agents/orchestrator.py`): Central session state manager coordinating requests between agents and maintaining running history and score statistics.
-2. **`RouterAgent`** (`agents/router_agent.py`): Classifies panel intent and maps queries to target vector collections (`technical_qa`, `interview_tips`, `networking_advice`).
-3. **`QuestionAgent`** (`agents/question_agent.py`): Executes ReAct retrieve-vs-generate workflow over ChromaDB vector embeddings (`all-MiniLM-L6-v2`) and parses clean question prompts.
-4. **`CoachAgent`** (`agents/coach_agent.py`): Runs two-stage draft evaluation and self-critique reflection with multi-model failover (OpenRouter → Groq).
+## 📚 Professional Role Tracks & Knowledge Base Datasets
+
+| Professional Track | Knowledge Base Coverage | Datasets Source | Default Complexity |
+| :--- | :--- | :--- | :--- |
+| 💻 **Software Engineer** | Object-Oriented Programming (OOP), Operating Systems, DBMS, System Architecture, Networking | `oop.md`, `networking.md`, `dbms.md`, `os.md` | Medium / Hard |
+| 📊 **Data Analyst** | SQL Window Functions, A/B Testing, ETL Data Pipelines, Data Cleaning, Pandas DataFrames | `data_analyst_questions.md` | Easy / Medium |
+| 📦 **Product Manager** | RICE Prioritization Framework, Product Metrics (DAU/MAU), User Discovery, Product Strategy | `product_manager_questions.md` | Medium / Hard |
+| 🎨 **UX Designer** | Nielsen Usability Heuristics, Information Architecture, Card Sorting, Accessibility (WCAG), Wireframing | `ux_designer_questions.md` | Easy / Medium |
 
 ---
 
@@ -111,62 +97,55 @@ interview-prep-coach/
 ├── agents/
 │   ├── coach_agent.py          # Dual-stage evaluation agent with model failover
 │   ├── orchestrator.py         # Multi-agent session orchestrator
-│   ├── question_agent.py       # ReAct retrieval & question agent
+│   ├── question_agent.py       # ReAct retrieval & content agent
 │   └── router_agent.py         # Intent classification & collection router
 ├── assets/
-│   └── home_ui.png             # UI Screenshot for README
+│   └── home_ui.png             # UI Screenshot asset
 ├── kb/
+│   ├── chroma_db/              # Pre-built vector database embeddings
 │   ├── documents/              # Markdown knowledge base source files
 │   │   ├── technical_qa/       # Q&A datasets (SE, Data Analyst, PM, UX)
-│   │   ├── interview_tips/     # STAR method, body language, mistakes
-│   │   └── networking_advice/  # Prospecting, informational chats, referrals
-│   ├── ingest.py               # Vector database ingestion pipeline script
-│   └── retriever.py            # ChromaDB similarity retriever & metadata filter
+│   │   ├── interview_tips/     # Behavioral interviewing & STAR method
+│   │   └── networking_advice/  # Prospecting, informational chats & referrals
+│   ├── ingest.py               # Vector ingestion script
+│   └── retriever.py            # ChromaDB similarity retriever & cache manager
 ├── models/
-│   ├── groq_client.py          # Groq Llama-3.1 API wrapper
-│   └── openrouter_client.py    # OpenRouter GPT-4o-mini API wrapper
+│   ├── groq_client.py          # Groq Llama-3.1 API client
+│   └── openrouter_client.py    # OpenRouter GPT-4o-mini API client
 ├── protocol/
 │   └── messages.py             # Typed dataclasses for inter-agent messaging
 ├── tests/
-│   ├── test_agents.py          # End-to-end agent orchestration test suite
-│   └── test_retrieval.py       # ChromaDB vector retrieval test suite
-├── .env                        # Environment variables (API keys)
-├── .gitignore                  # Git ignore file (.env, venv, chromadb)
-├── app.py                      # Main Streamlit UI web application
-├── README.md                   # Project documentation
+│   ├── test_agents.py          # Agent orchestration unit tests
+│   └── test_retrieval.py       # ChromaDB vector retrieval tests
+├── .env                        # Environment variable API keys
+├── .gitignore                  # Git ignore rules
+├── app.py                      # Main Streamlit web application
+├── README.md                   # Formal project documentation
 └── requirements.txt            # Python dependencies
 ```
 
 ---
 
-## ⚡ Getting Started & Setup Guide
+## ⚡ Quick Start & Setup Guide
 
-### 1. Prerequisites
-- Python `3.10` or higher installed on your system.
-- Git installed.
-
-### 2. Clone Repository & Setup Virtual Environment
+### 1. Environment Setup
 ```bash
 # Clone repository
 git clone https://github.com/Janadari1213/Interview-Preparation-Coach.git
 cd Interview-Preparation-Coach/interview-prep-coach
 
-# Create virtual environment
+# Create and activate virtual environment
 python -m venv venv
-
-# Activate virtual environment
-# Windows (PowerShell):
-.\venv\Scripts\Activate.ps1
-# macOS/Linux:
-source venv/bin/activate
+.\venv\Scripts\Activate.ps1  # Windows PowerShell
+# source venv/bin/activate   # macOS / Linux
 ```
 
-### 3. Install Dependencies
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure Secrets / API Keys
+### 3. API Key Configuration
 Create a `.env` file in the project root (`interview-prep-coach/.env`) or configure `.streamlit/secrets.toml`:
 
 ```env
@@ -174,42 +153,30 @@ GROQ_API_KEY=gsk_your_groq_api_key_here
 OPENROUTER_API_KEY=sk-or-v1-your_openrouter_api_key_here
 ```
 
-### 5. Ingest Knowledge Base into Vector Database
-Run the ingestion pipeline to embed markdown knowledge documents into ChromaDB:
+### 4. Vector Database Ingestion (Optional)
+The pre-built vector database is included in the repository. To re-ingest custom markdown documents:
 
 ```bash
 python kb/ingest.py
 ```
 
-*Output summary:*
-```
---- Ingestion Summary ---
-Collection 'technical_qa': 43 chunks loaded.
-Collection 'interview_tips': 8 chunks loaded.
-Collection 'networking_advice': 6 chunks loaded.
--------------------------
-```
-
-### 6. Run the Application
-Launch the Streamlit web application:
-
+### 5. Launch Web Application
 ```bash
 python -m streamlit run app.py
 ```
-
-Open your browser at **`http://localhost:8501`**.
+Open **`http://localhost:8501`** in your browser.
 
 ---
 
-## 🧪 Running Unit & Integration Tests
+## 🧪 Testing & Verification
 
-Run the automated test suite to verify agent orchestration and vector retrieval:
+Run the automated pytest test suite to verify agent orchestration and vector search:
 
 ```bash
-# Test Agent Orchestration Pipeline
+# Run agent orchestration tests
 python tests/test_agents.py
 
-# Test ChromaDB Vector Retrieval
+# Run vector retrieval tests
 python tests/test_retrieval.py
 ```
 
@@ -217,7 +184,9 @@ python tests/test_retrieval.py
 
 ## 📜 Academic Metadata & License
 
-- **Course Module**: IT41043 — Agentic AI Applications
-- **Project Phase**: Phase 5 (Final Phase - Complete Delivery)
-- **Submission Date**: 27th July 2026
-- **License**: [MIT License](LICENSE)
+| Field | Detail |
+| :--- | :--- |
+| **Academic Module** | IT41043 — Advanced Agentic AI Applications |
+| **Project Phase** | Phase 5 (Final Phase — Deployment & Delivery) |
+| **Submission Date** | 27th July 2026 |
+| **License** | [MIT License](LICENSE) |
