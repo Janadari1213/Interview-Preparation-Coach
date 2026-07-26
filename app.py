@@ -69,31 +69,6 @@ st.markdown("""
         transform: translateY(-2px);
     }
 
-    /* Strategy Specific Card */
-    .strategy-card {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border: 1px solid rgba(99, 102, 241, 0.3);
-        border-radius: 16px;
-        padding: 24px;
-        margin-top: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    }
-
-    .pitfall-box {
-        background: rgba(220, 38, 38, 0.1);
-        border-left: 4px solid #ef4444;
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 15px;
-    }
-
-    .solution-box {
-        background: rgba(16, 185, 129, 0.1);
-        border-left: 4px solid #10b981;
-        border-radius: 8px;
-        padding: 16px;
-    }
-
     /* Metric Badges */
     .badge-purple {
         background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
@@ -454,7 +429,7 @@ with tab1:
                     st.info(f"**Reference Answer Concept:**\n\n{q_data.correct_answer}")
 
 # -------------------------------------------------
-# Tab 2 – Interview Technique Coaching (Detailed & Professional Strategy Studio)
+# Tab 2 – Interview Technique Coaching (Detailed & Seamless Strategy Studio)
 # -------------------------------------------------
 with tab2:
     st.markdown("## 💡 Interview Technique & Strategy Studio")
@@ -478,7 +453,7 @@ with tab2:
 
     st.divider()
 
-    # SECTION 2: Professional RAG Strategy Tip Studio
+    # SECTION 2: Professional Unified RAG Strategy Tip Card
     st.markdown("### 🤖 Deep-Dive Strategy & Best Practice Advice (AI RAG)")
     st.write(f"Pull structured interview techniques from our vector knowledge base for **{st.session_state.selected_role}**:")
 
@@ -501,32 +476,36 @@ with tab2:
         raw_text = t_data.question
         topic_name = t_data.topic
 
-        # Smart Parsing of Raw Strategy Chunk
-        title_match = re.search(r'##\s*(.*?)\n', raw_text)
-        if title_match:
-            tip_title = title_match.group(1).strip()
-            body_text = raw_text[title_match.end():].strip()
+        # Robust Parsing of Strategy Title and Body
+        lines = [l.strip() for l in raw_text.strip().split("\n") if l.strip()]
+        if lines and (lines[0].startswith("##") or lines[0].startswith("#")):
+            tip_title = re.sub(r'^\#+\s*', '', lines[0]).strip()
+            body_text = "\n\n".join(lines[1:]).strip()
         else:
-            tip_title = f"{topic_name} Guidance"
-            body_text = raw_text.strip()
+            if lines and ":" in lines[0] and len(lines[0]) < 90:
+                tip_title = lines[0]
+                body_text = "\n\n".join(lines[1:]).strip()
+            else:
+                tip_title = f"{topic_name} Strategy Guidance"
+                body_text = "\n\n".join(lines).strip()
 
-        # Clean any extra markdown symbols
-        tip_title = re.sub(r'^\#+\s*', '', tip_title)
+        # Clean trailing title duplicates from body_text
         body_text = re.sub(r'^\#+\s*', '', body_text, flags=re.MULTILINE)
+        if body_text.startswith(tip_title):
+            body_text = body_text[len(tip_title):].strip()
 
-        # Categorize tip type (Mistake vs Best Practice vs Setup)
         is_mistake = "Mistake" in tip_title or "Mistake" in topic_name or "Avoid" in body_text
-        badge_type_html = '<span class="badge-red">⚠️ Common Mistake to Avoid</span>' if is_mistake else '<span class="badge-green">✅ Recommended Best Practice</span>'
+        badge_html = '<span class="badge-red">⚠️ Common Mistake to Avoid</span>' if is_mistake else '<span class="badge-green">✅ Recommended Best Practice</span>'
 
-        # Render Modern Strategy Detail Card
+        # Render SINGLE Unified Glassmorphic Container
         st.markdown(f"""
-        <div class="strategy-card">
+        <div class="glass-card" style="border: 1px solid rgba(99, 102, 241, 0.3); margin-top: 15px;">
             <div style="margin-bottom: 12px;">
                 <span class="badge-purple">🎯 {st.session_state.selected_role}</span>
                 <span class="badge-cyan">📌 {topic_name}</span>
-                {badge_type_html}
+                {badge_html}
             </div>
-            <h2 style="color: #f8fafc; margin-top: 10px; font-size: 1.5rem; font-weight: 700;">
+            <h2 style="color: #f8fafc; margin-top: 8px; margin-bottom: 20px; font-size: 1.45rem; font-weight: 700;">
                 {tip_title}
             </h2>
         </div>
@@ -556,7 +535,7 @@ with tab2:
                 """, unsafe_allow_html=True)
         else:
             st.markdown(f"""
-            <div class="solution-box" style="margin-top: 15px;">
+            <div class="solution-box">
                 <h4 style="color: #10b981; margin-top:0;">📖 Detailed Guidance Breakdown</h4>
                 <p style="color: #e2e8f0; font-size: 1rem; line-height: 1.7;">
                     {body_text}
