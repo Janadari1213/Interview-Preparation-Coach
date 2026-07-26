@@ -8,6 +8,17 @@ from groq import Groq
 load_dotenv()
 
 
+def get_groq_api_key() -> str:
+    """Retrieve Groq API key checking Streamlit secrets first, then environment."""
+    try:
+        import streamlit as st
+        if "GROQ_API_KEY" in st.secrets and st.secrets["GROQ_API_KEY"]:
+            return st.secrets["GROQ_API_KEY"]
+    except Exception:
+        pass
+    return os.getenv("GROQ_API_KEY", "")
+
+
 def call_groq(prompt: str, model: str = "llama-3.1-8b-instant", system: str = None) -> str:
     """Call Groq API with prompt and optional system instructions.
     
@@ -19,10 +30,10 @@ def call_groq(prompt: str, model: str = "llama-3.1-8b-instant", system: str = No
     Returns:
         String response from the LLM or error message.
     """
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = get_groq_api_key()
     if not api_key:
         print("[Warning] GROQ_API_KEY is not set in environment or .env file.")
-        return "[Groq Error] GROQ_API_KEY is missing. Please configure it in your .env file."
+        return "[Groq Error] GROQ_API_KEY is missing. Please configure it in your .env file or Streamlit Secrets."
 
     try:
         client = Groq(api_key=api_key)

@@ -8,6 +8,17 @@ from openai import OpenAI
 load_dotenv()
 
 
+def get_openrouter_api_key() -> str:
+    """Retrieve OpenRouter API key checking Streamlit secrets first, then environment."""
+    try:
+        import streamlit as st
+        if "OPENROUTER_API_KEY" in st.secrets and st.secrets["OPENROUTER_API_KEY"]:
+            return st.secrets["OPENROUTER_API_KEY"]
+    except Exception:
+        pass
+    return os.getenv("OPENROUTER_API_KEY", "")
+
+
 def call_openrouter(prompt: str, model: str = "openai/gpt-4o-mini", system: str = None) -> str:
     """Call OpenRouter API with prompt and optional system instructions.
     
@@ -19,10 +30,10 @@ def call_openrouter(prompt: str, model: str = "openai/gpt-4o-mini", system: str 
     Returns:
         String response from the LLM or error message.
     """
-    api_key = os.getenv("OPENROUTER_API_KEY")
+    api_key = get_openrouter_api_key()
     if not api_key:
         print("[Warning] OPENROUTER_API_KEY is not set in environment or .env file.")
-        return "[OpenRouter Error] OPENROUTER_API_KEY is missing. Please configure it in your .env file."
+        return "[OpenRouter Error] OPENROUTER_API_KEY is missing. Please configure it in your .env file or Streamlit Secrets."
 
     try:
         client = OpenAI(
