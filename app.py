@@ -139,6 +139,7 @@ with tab1:
                         st.session_state.t1_answered = False
                         st.rerun()
                 except Exception as e:
+                    print(f"[Tab 1 Error]: {e}")
                     st.error("Something went wrong retrieving your question — please try again.")
         with col_btn2:
             if q_asked > 0 and st.button("Finish Session"):
@@ -164,6 +165,7 @@ with tab1:
                                 st.session_state.t1_answered = True
                                 st.rerun()
                         except Exception as e:
+                            print(f"[Tab 1 Submit Error]: {e}")
                             st.error("Something went wrong retrieving your evaluation — please try again.")
             if st.session_state.t1_coach_res:
                 c_res = st.session_state.t1_coach_res
@@ -192,6 +194,7 @@ with tab2:
                 st.session_state.t2_tip_res = tip_res
                 st.rerun()
         except Exception as e:
+            print(f"[Tab 2 Error]: {e}")
             st.error("Something went wrong retrieving your tip — please try again.")
     if st.session_state.t2_tip_res:
         t_data = st.session_state.t2_tip_res
@@ -215,6 +218,7 @@ with tab3:
                 st.session_state.t3_expert_res = expert_res
                 st.rerun()
         except Exception as e:
+            print(f"[Tab 3 Error]: {e}")
             st.error("Something went wrong retrieving your guide — please try again.")
     if st.session_state.t3_expert_res:
         e_data = st.session_state.t3_expert_res
