@@ -1,4 +1,4 @@
-"""Streamlit UI Application for Interview Preparation Coach with Modern Interactive Design."""
+"""Streamlit UI Application for Interview Preparation Coach with Ultra-Modern Interactive Design."""
 
 import os
 import re
@@ -13,7 +13,7 @@ import streamlit as st
 from agents.orchestrator import InterviewOrchestrator
 
 # -------------------------------------------------
-# Page configuration & Modern Styling
+# Page configuration & Glassmorphism Design System
 # -------------------------------------------------
 st.set_page_config(
     page_title="Interview Preparation Coach",
@@ -24,84 +24,108 @@ st.set_page_config(
 # Custom CSS for Modern Dark Glassmorphism Aesthetics
 st.markdown("""
 <style>
-    /* Global Styles */
-    .stApp {
-        background-color: #0e1117;
-    }
-    
-    /* Card Container */
-    .custom-card {
-        background: linear-gradient(135deg, #1e2640 0%, #151b2e 100%);
-        border: 1px solid #2d3748;
-        border-radius: 14px;
-        padding: 24px;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-    }
-    
-    /* Badges */
-    .badge-role {
-        background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        display: inline-block;
-        margin-right: 8px;
-    }
-    
-    .badge-topic {
-        background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        display: inline-block;
-        margin-right: 8px;
-    }
-    
-    .badge-diff {
-        background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        display: inline-block;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
     }
 
-    /* Score Badges */
-    .score-green {
-        background-color: #059669;
-        color: white;
-        padding: 6px 14px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 1.1rem;
+    h1, h2, h3, .main-title {
+        font-family: 'Outfit', sans-serif !important;
+        letter-spacing: -0.02em;
     }
-    .score-yellow {
-        background-color: #d97706;
-        color: white;
-        padding: 6px 14px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 1.1rem;
+
+    /* Global Dark Glass Background */
+    .stApp {
+        background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 45%, #020617 100%);
     }
-    .score-red {
-        background-color: #dc2626;
-        color: white;
+
+    /* Hero Banner Header */
+    .hero-banner {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%);
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        border-radius: 18px;
+        padding: 24px;
+        margin-bottom: 24px;
+        backdrop-filter: blur(10px);
+    }
+
+    /* Glass Card Container */
+    .glass-card {
+        background: rgba(30, 41, 59, 0.65);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.2);
+        transform: translateY(-2px);
+    }
+
+    /* Metric Badges */
+    .badge-purple {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: #ffffff !important;
         padding: 6px 14px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 1.1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        margin-right: 8px;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .badge-cyan {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        color: #ffffff !important;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        margin-right: 8px;
+        box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+
+    .badge-amber {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #ffffff !important;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background-color: rgba(15, 23, 42, 0.9);
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
     }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🎓 Interview Preparation Coach")
-st.caption("Agentic AI Interview Preparation Assistant (IT41043)")
+# App Hero Header
+st.markdown("""
+<div class="hero-banner">
+    <h1 style="margin:0; font-size: 2.2rem; background: linear-gradient(90deg, #a855f7, #6366f1, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        🎓 Interview Preparation Coach
+    </h1>
+    <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 1rem;">
+        Agentic AI Interview Coaching & Outreach System | University Module IT41043
+    </p>
+</div>
+""", unsafe_allow_html=True)
 
 # -------------------------------------------------
 # Session state initialisation
@@ -141,7 +165,7 @@ with st.sidebar:
     pct = round((running / max_pts * 100), 1) if max_pts > 0 else 0.0
 
     st.metric("Total Score", f"{running} / {max_pts}")
-    st.metric("Questions Answered", q_count)
+    st.metric("Questions Attempted", q_count)
     st.metric("Average Score", f"{stats['average_score']} / 10")
     st.metric("Accuracy Rate", f"{pct}%")
     
@@ -179,13 +203,13 @@ with st.sidebar:
 # Main navigation tabs
 # -------------------------------------------------
 tab1, tab2, tab3 = st.tabs([
-    "🎯 Practice Questions",
-    "💡 How to Face an Interview",
-    "🤝 Connect with Industry Experts",
+    "🎯 Practice Questions Studio",
+    "💡 Interview Technique Coaching",
+    "🤝 Expert Networking & Outreach Studio",
 ])
 
 # -------------------------------------------------
-# Tab 1 – Practice Questions (role‑aware & modern)
+# Tab 1 – Practice Questions Studio (role‑aware & modern)
 # -------------------------------------------------
 with tab1:
     summary_stats = orchestrator.get_summary()
@@ -203,7 +227,7 @@ with tab1:
     # FINISHED SESSION REPORT DASHBOARD
     # ---------------------------------------------
     if st.session_state.t1_finished:
-        st.markdown("## 🎉 Interactive Session Performance Report")
+        st.markdown("## 🎉 Interactive Performance Report Dashboard")
         
         # Calculate summary grade badge
         avg_s = summary_stats['average_score']
@@ -242,7 +266,7 @@ with tab1:
         if summary_stats["history"]:
             st.markdown("### 📈 Question Performance Chart")
             chart_data = {
-                f"Q{i+1}: {h['question'][:30]}...": h['score']
+                f"Q{i+1}: {h['question'][:28]}...": h['score']
                 for i, h in enumerate(summary_stats["history"])
             }
             st.bar_chart(chart_data)
@@ -328,12 +352,14 @@ with tab1:
             q_data = st.session_state.t1_question_res
             
             st.markdown(f"""
-            <div class="custom-card">
-                <div>
-                    <span class="badge-role">🎯 {st.session_state.selected_role}</span>
-                    <span class="badge-topic">📌 {q_data.topic}</span>
+            <div class="glass-card">
+                <div style="margin-bottom: 12px;">
+                    <span class="badge-purple">🎯 {st.session_state.selected_role}</span>
+                    <span class="badge-cyan">📌 {q_data.topic}</span>
                 </div>
-                <h3 style="margin-top: 15px; color: #f8fafc;">{q_data.question}</h3>
+                <h3 style="margin-top: 10px; color: #f8fafc; font-size: 1.35rem; line-height: 1.5;">
+                    {q_data.question}
+                </h3>
             </div>
             """, unsafe_allow_html=True)
 
@@ -376,6 +402,9 @@ with tab1:
                 st.divider()
                 st.markdown("### 📝 AI Coach Evaluation")
                 
+                # Progress bar for score visual
+                st.progress(score / max_s)
+                
                 if score >= 8:
                     st.success(f"**🏆 Excellent Answer! Score: {score}/{max_s}**\n\n{c_res.feedback}")
                 elif score >= 6:
@@ -387,12 +416,33 @@ with tab1:
                     st.info(f"**Reference Answer Concept:**\n\n{q_data.correct_answer}")
 
 # -------------------------------------------------
-# Tab 2 – Interview Technique Coaching (role‑aware)
+# Tab 2 – Interview Technique Coaching (Interactive STAR Builder)
 # -------------------------------------------------
 with tab2:
-    st.markdown("### 💡 Interview Technique & Strategy Guidance")
-    st.write(f"Tailored advice and best practices for **{st.session_state.selected_role}** interviews.")
-    
+    st.markdown("### 💡 Interview Technique & Strategy Studio")
+    st.write(f"Tailored behavioral frameworks and technical interview strategy for **{st.session_state.selected_role}**.")
+    st.divider()
+
+    # Interactive STAR Methodology Answer Builder
+    st.markdown("### 🌟 Interactive STAR Methodology Answer Builder")
+    st.caption("Structure behavioral answers (e.g. 'Tell me about a time when...') using the STAR framework:")
+
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
+        star_s = st.text_area("1. Situation (Set the context)", value="While working on a critical release at my project...", height=100)
+        star_t = st.text_area("2. Task (Define your responsibility)", value="I was assigned to fix a high-priority latency spike...", height=100)
+    with col_s2:
+        star_a = st.text_area("3. Action (Describe specific steps YOU took)", value="I profiled database queries, added indexing, and refactored...", height=100)
+        star_r = st.text_area("4. Result (Quantify the positive outcome)", value="This reduced response latency by 45% and improved uptime...", height=100)
+
+    compiled_star = f"**Situation:** {star_s}\n\n**Task:** {star_t}\n\n**Action:** {star_a}\n\n**Result:** {star_r}"
+    with st.expander("📋 Formatted STAR Answer Preview (Ready to Practice)", expanded=False):
+        st.markdown(compiled_star)
+
+    st.divider()
+
+    # AI RAG Strategy Retrieval
+    st.markdown("### 🤖 RAG Knowledge Base Strategy Tips")
     btn_label = "Get Coaching Tip" if st.session_state.t2_tip_res is None else "Fetch Another Tip"
     if st.button(btn_label, type="primary", key="btn_get_tip"):
         try:
@@ -409,13 +459,12 @@ with tab2:
             
     if st.session_state.t2_tip_res:
         t_data = st.session_state.t2_tip_res
-        st.divider()
-        st.subheader(f"📌 Role: {st.session_state.selected_role} | Topic: {t_data.topic}")
+        st.markdown(f"#### 📌 Topic: **{t_data.topic}**")
         clean_tip_text = re.sub(r'^##\s*', '', t_data.question).strip()
-        st.markdown(clean_tip_text)
+        st.info(clean_tip_text)
 
 # -------------------------------------------------
-# Tab 3 – Connect with Industry Experts (Modern Remake)
+# Tab 3 – Connect with Industry Experts (Modern Outreach Studio)
 # -------------------------------------------------
 with tab3:
     st.markdown("## 🤝 Expert Networking & Outreach Studio")
@@ -428,26 +477,33 @@ with tab3:
     
     with col_pb1:
         st.markdown("""
-        #### 🔎 1. Identify & Prospect
-        - **Target**: Senior {role}s, Lead Engineers, or University Alumni at your dream companies.
-        - **Research**: Read their recent posts, patents, or shared articles before reaching out.
-        """.format(role=st.session_state.selected_role))
+        <div class="glass-card">
+            <h4>🔎 1. Identify & Prospect</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem;">
+                Target Senior <b>{role}</b>s or University Alumni at target companies. Research their posts before reaching out.
+            </p>
+        </div>
+        """.format(role=st.session_state.selected_role), unsafe_allow_html=True)
         
     with col_pb2:
         st.markdown("""
-        #### ✍️ 2. The 300-Char Hook
-        - Keep LinkedIn notes **under 300 characters**.
-        - Include 1 personal hook (e.g. shared university, specific post, or common tech stack).
-        - **Never** ask for a job in the first message.
-        """)
+        <div class="glass-card">
+            <h4>✍️ 2. The 300-Char Hook</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem;">
+                Keep LinkedIn notes under 300 chars. Mention 1 personal hook. <b>Never</b> ask for a job in the first message.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col_pb3:
         st.markdown("""
-        #### ☕ 3. 15-Min Info Chat
-        - Ask for a brief 15-minute virtual coffee chat.
-        - Prepare 3 thoughtful questions about their career growth and technical challenges.
-        - Send a warm thank-you note within 24 hours.
-        """)
+        <div class="glass-card">
+            <h4>☕ 3. 15-Min Info Chat</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem;">
+                Request a brief 15-minute chat. Prepare 3 questions about their journey. Send a thank-you note within 24 hours.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.divider()
 
