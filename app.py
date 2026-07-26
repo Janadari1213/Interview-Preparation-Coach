@@ -69,6 +69,31 @@ st.markdown("""
         transform: translateY(-2px);
     }
 
+    /* Strategy Specific Card */
+    .strategy-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 16px;
+        padding: 24px;
+        margin-top: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .pitfall-box {
+        background: rgba(220, 38, 38, 0.1);
+        border-left: 4px solid #ef4444;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 15px;
+    }
+
+    .solution-box {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 4px solid #10b981;
+        border-radius: 8px;
+        padding: 16px;
+    }
+
     /* Metric Badges */
     .badge-purple {
         background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
@@ -96,8 +121,8 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
     }
 
-    .badge-amber {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    .badge-red {
+        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
         color: #ffffff !important;
         padding: 6px 14px;
         border-radius: 20px;
@@ -105,6 +130,19 @@ st.markdown("""
         font-size: 0.85rem;
         display: inline-flex;
         align-items: center;
+        margin-right: 8px;
+    }
+
+    .badge-green {
+        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        color: #ffffff !important;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        margin-right: 8px;
     }
 
     /* Sidebar Styling */
@@ -416,34 +454,35 @@ with tab1:
                     st.info(f"**Reference Answer Concept:**\n\n{q_data.correct_answer}")
 
 # -------------------------------------------------
-# Tab 2 – Interview Technique Coaching (Interactive STAR Builder)
+# Tab 2 – Interview Technique Coaching (Detailed & Professional Strategy Studio)
 # -------------------------------------------------
 with tab2:
-    st.markdown("### 💡 Interview Technique & Strategy Studio")
-    st.write(f"Tailored behavioral frameworks and technical interview strategy for **{st.session_state.selected_role}**.")
+    st.markdown("## 💡 Interview Technique & Strategy Studio")
+    st.caption(f"Master behavioral interviewing, body language, and avoid common candidate pitfalls for **{st.session_state.selected_role}** interviews.")
     st.divider()
 
-    # Interactive STAR Methodology Answer Builder
-    st.markdown("### 🌟 Interactive STAR Methodology Answer Builder")
-    st.caption("Structure behavioral answers (e.g. 'Tell me about a time when...') using the STAR framework:")
+    # SECTION 1: Interactive STAR Methodology Answer Builder
+    st.markdown("### 🌟 Interactive STAR Methodology Builder")
+    st.caption("Construct structured behavioral answers (e.g. 'Tell me about a time when...') using Situation, Task, Action, Result:")
 
     col_s1, col_s2 = st.columns(2)
     with col_s1:
-        star_s = st.text_area("1. Situation (Set the context)", value="While working on a critical release at my project...", height=100)
-        star_t = st.text_area("2. Task (Define your responsibility)", value="I was assigned to fix a high-priority latency spike...", height=100)
+        star_s = st.text_area("1. Situation (Set the context)", value="During a major production deployment at my internship...", height=100)
+        star_t = st.text_area("2. Task (Define your core responsibility)", value="I needed to diagnose a 300% response latency spike...", height=100)
     with col_s2:
-        star_a = st.text_area("3. Action (Describe specific steps YOU took)", value="I profiled database queries, added indexing, and refactored...", height=100)
-        star_r = st.text_area("4. Result (Quantify the positive outcome)", value="This reduced response latency by 45% and improved uptime...", height=100)
+        star_a = st.text_area("3. Action (Detail specific steps YOU executed)", value="I analyzed database query logs, added a compound index, and hotfixed...", height=100)
+        star_r = st.text_area("4. Result (Quantify the positive impact)", value="Reduced latency by 80% with zero downtime for 10,000+ users.", height=100)
 
-    compiled_star = f"**Situation:** {star_s}\n\n**Task:** {star_t}\n\n**Action:** {star_a}\n\n**Result:** {star_r}"
-    with st.expander("📋 Formatted STAR Answer Preview (Ready to Practice)", expanded=False):
-        st.markdown(compiled_star)
+    with st.expander("📋 View Compiled STAR Answer Preview", expanded=False):
+        st.markdown(f"**Situation:** {star_s}\n\n**Task:** {star_t}\n\n**Action:** {star_a}\n\n**Result:** {star_r}")
 
     st.divider()
 
-    # AI RAG Strategy Retrieval
-    st.markdown("### 🤖 RAG Knowledge Base Strategy Tips")
-    btn_label = "Get Coaching Tip" if st.session_state.t2_tip_res is None else "Fetch Another Tip"
+    # SECTION 2: Professional RAG Strategy Tip Studio
+    st.markdown("### 🤖 Deep-Dive Strategy & Best Practice Advice (AI RAG)")
+    st.write(f"Pull structured interview techniques from our vector knowledge base for **{st.session_state.selected_role}**:")
+
+    btn_label = "Fetch Strategy Insight" if st.session_state.t2_tip_res is None else "Fetch Another Strategy Insight"
     if st.button(btn_label, type="primary", key="btn_get_tip"):
         try:
             with st.spinner("Retrieving interview technique advice…"):
@@ -459,9 +498,71 @@ with tab2:
             
     if st.session_state.t2_tip_res:
         t_data = st.session_state.t2_tip_res
-        st.markdown(f"#### 📌 Topic: **{t_data.topic}**")
-        clean_tip_text = re.sub(r'^##\s*', '', t_data.question).strip()
-        st.info(clean_tip_text)
+        raw_text = t_data.question
+        topic_name = t_data.topic
+
+        # Smart Parsing of Raw Strategy Chunk
+        title_match = re.search(r'##\s*(.*?)\n', raw_text)
+        if title_match:
+            tip_title = title_match.group(1).strip()
+            body_text = raw_text[title_match.end():].strip()
+        else:
+            tip_title = f"{topic_name} Guidance"
+            body_text = raw_text.strip()
+
+        # Clean any extra markdown symbols
+        tip_title = re.sub(r'^\#+\s*', '', tip_title)
+        body_text = re.sub(r'^\#+\s*', '', body_text, flags=re.MULTILINE)
+
+        # Categorize tip type (Mistake vs Best Practice vs Setup)
+        is_mistake = "Mistake" in tip_title or "Mistake" in topic_name or "Avoid" in body_text
+        badge_type_html = '<span class="badge-red">⚠️ Common Mistake to Avoid</span>' if is_mistake else '<span class="badge-green">✅ Recommended Best Practice</span>'
+
+        # Render Modern Strategy Detail Card
+        st.markdown(f"""
+        <div class="strategy-card">
+            <div style="margin-bottom: 12px;">
+                <span class="badge-purple">🎯 {st.session_state.selected_role}</span>
+                <span class="badge-cyan">📌 {topic_name}</span>
+                {badge_type_html}
+            </div>
+            <h2 style="color: #f8fafc; margin-top: 10px; font-size: 1.5rem; font-weight: 700;">
+                {tip_title}
+            </h2>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if is_mistake:
+            col_d1, col_d2 = st.columns(2)
+            with col_d1:
+                st.markdown(f"""
+                <div class="pitfall-box">
+                    <h4 style="color: #ef4444; margin-top:0;">❌ The Candidate Pitfall</h4>
+                    <p style="color: #e2e8f0; font-size: 0.95rem; line-height: 1.6;">
+                        {body_text}
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+            with col_d2:
+                st.markdown(f"""
+                <div class="solution-box">
+                    <h4 style="color: #10b981; margin-top:0;">💡 Coach Action Plan</h4>
+                    <ul style="color: #e2e8f0; font-size: 0.95rem; line-height: 1.6;">
+                        <li><b>Acknowledge & Structure</b>: Frame past challenges constructively without speaking negatively.</li>
+                        <li><b>Quantify Impact</b>: Always support claims with measurable metrics or concrete deliverables.</li>
+                        <li><b>Ask 3-5 Questions</b>: Prepare insightful questions about team technical challenges.</li>
+                    </ul>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div class="solution-box" style="margin-top: 15px;">
+                <h4 style="color: #10b981; margin-top:0;">📖 Detailed Guidance Breakdown</h4>
+                <p style="color: #e2e8f0; font-size: 1rem; line-height: 1.7;">
+                    {body_text}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
 # -------------------------------------------------
 # Tab 3 – Connect with Industry Experts (Modern Outreach Studio)
