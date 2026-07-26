@@ -141,8 +141,28 @@ with tab1:
                 else:
                     st.warning(f"**{score_str}**\n\n{c_res.feedback}")
 
+# ==========================================
+# TAB 2: HOW TO FACE AN INTERVIEW
+# ==========================================
 with tab2:
-    st.info("Welcome to Interview Technique Coaching panel.")
+    st.markdown("### 💡 Interview Technique & Strategy Guidance")
+    st.write("Browse best practices on STAR methodology, body language, and avoiding common candidate pitfalls.")
+    
+    btn_t2_label = "Get Coaching Tip" if st.session_state.t2_tip_res is None else "Fetch Another Tip"
+    if st.button(btn_t2_label, type="primary", key="btn_get_tip"):
+        try:
+            with st.spinner("Retrieving interview technique advice..."):
+                tip_res = orchestrator.start_panel("how_to_face_interview")
+                st.session_state.t2_tip_res = tip_res
+                st.rerun()
+        except Exception as e:
+            st.error("Something went wrong retrieving your tip — please try again.")
+
+    if st.session_state.t2_tip_res:
+        t_data = st.session_state.t2_tip_res
+        st.divider()
+        st.subheader(f"📌 Topic: {t_data.topic}")
+        st.markdown(t_data.question)
 
 with tab3:
     st.info("Welcome to Networking & Expert Outreach panel.")
