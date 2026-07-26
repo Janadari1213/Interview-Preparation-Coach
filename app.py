@@ -1,5 +1,13 @@
 """Streamlit UI Application for Interview Preparation Coach with Role Selection."""
 
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env from project root using absolute path so Streamlit always finds it
+_ROOT = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=_ROOT / ".env")
+
 import streamlit as st
 from agents.orchestrator import InterviewOrchestrator
 

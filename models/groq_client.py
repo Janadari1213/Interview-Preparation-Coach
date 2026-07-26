@@ -1,11 +1,13 @@
 """Groq API client wrapper."""
 
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from groq import Groq
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from project root .env (absolute path so Streamlit always finds it)
+_ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=_ENV_PATH)
 
 
 def get_groq_api_key() -> str:
