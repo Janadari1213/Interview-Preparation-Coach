@@ -1,5 +1,7 @@
 # 🎓 Interview Preparation Coach
 
+[![Live Web Application](https://img.shields.io/badge/🚀_Live_App-interview--preparation--coach0.streamlit.app-FF4B4B?style=for-the-badge&logo=streamlit)](https://interview-preparation-coach0.streamlit.app/)
+
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-FF4B4B.svg)](https://streamlit.io/)
 [![Groq Llama-3.1](https://img.shields.io/badge/LLM-Groq%20Llama--3.1--8B-orange.svg)](https://groq.com/)
@@ -8,6 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Academic Module](https://img.shields.io/badge/Module-IT41043-lightgrey.svg)]()
 
+> 🚀 **Live Production Web Application**: [https://interview-preparation-coach0.streamlit.app/](https://interview-preparation-coach0.streamlit.app/)  
 > **An Agentic AI Multi-Agent Preparation, Strategy Coaching & Industry Outreach Platform.**  
 > *Developed for Academic Module IT41043 — Final Project Phase (Submission Date: 27th July 2026).*
 
@@ -23,7 +26,7 @@ The platform provides tailored coaching across four professional domains: **Soft
 
 ## 🖥️ System Interface
 
-![Interview Preparation Coach Home UI](assets/home_ui.png)
+[![Interview Preparation Coach Home UI](assets/home_ui.png)](https://interview-preparation-coach0.streamlit.app/)
 
 ---
 
@@ -186,6 +189,7 @@ python tests/test_retrieval.py
 
 | Field | Detail |
 | :--- | :--- |
+| **Live Web App** | [interview-preparation-coach0.streamlit.app](https://interview-preparation-coach0.streamlit.app/) |
 | **Academic Module** | IT41043 — Advanced Agentic AI Applications |
 | **Project Phase** | Phase 5 (Final Phase — Deployment & Delivery) |
 | **Submission Date** | 27th July 2026 |
