@@ -164,5 +164,32 @@ with tab2:
         st.subheader(f"📌 Topic: {t_data.topic}")
         st.markdown(t_data.question)
 
+# ==========================================
+# TAB 3: CONNECT WITH INDUSTRY EXPERTS
+# ==========================================
 with tab3:
-    st.info("Welcome to Networking & Expert Outreach panel.")
+    st.markdown("### 🤝 Networking & Outreach Strategies")
+    st.write("Learn how to connect with professionals on LinkedIn and leverage ready-to-use message templates.")
+
+    btn_t3_label = "Get Outreach Guide / Template" if st.session_state.t3_expert_res is None else "Fetch Another Guide"
+    if st.button(btn_t3_label, type="primary", key="btn_get_expert"):
+        try:
+            with st.spinner("Retrieving networking guidance..."):
+                expert_res = orchestrator.start_panel("connect_with_experts")
+                st.session_state.t3_expert_res = expert_res
+                st.rerun()
+        except Exception as e:
+            st.error("Something went wrong retrieving your guide — please try again.")
+
+    if st.session_state.t3_expert_res:
+        e_data = st.session_state.t3_expert_res
+        st.divider()
+        st.subheader(f"🌐 Topic: {e_data.topic}")
+        
+        # Check if text contains message templates and highlight accordingly
+        content_text = e_data.question
+        if "Template" in content_text or "Hi [" in content_text:
+            st.write("#### Message Template:")
+            st.code(content_text, language="markdown")
+        else:
+            st.markdown(content_text)
