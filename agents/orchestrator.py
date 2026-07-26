@@ -25,12 +25,13 @@ class InterviewOrchestrator:
         self.current_correct_answer: str = None
         self.history: List[Dict[str, Any]] = []
 
-    def start_panel(self, panel_name: str, role: str = None) -> QuestionResponse:
+    def start_panel(self, panel_name: str, role: str = None, difficulty: str = None) -> QuestionResponse:
         """Start or switch panel, route query, and fetch role-appropriate question content.
         
         Args:
             panel_name: Name of interview panel ('practice_questions', 'how_to_face_interview', 'connect_with_experts').
             role: Candidate role ('Software Engineer', 'Data Analyst', 'Product Manager', 'UX Designer').
+            difficulty: Question complexity ('easy', 'medium', 'hard').
             
         Returns:
             QuestionResponse dataclass containing question, correct_answer, and topic.
@@ -46,30 +47,34 @@ class InterviewOrchestrator:
         q_req = QuestionRequest(
             type="get_content",
             collection=router_res.kb_collection,
-            difficulty=router_res.difficulty,
+            difficulty=difficulty or router_res.difficulty,
             role=role
         )
         q_res = question_agent.get_content(q_req)
 
-        # Update current state
+        # Record state for answer evaluation phase
         self.current_question = q_res.question
         self.current_correct_answer = q_res.correct_answer
 
         return q_res
 
     def submit_answer(self, user_answer_text: str) -> CoachResponse:
-        """Evaluate candidate answer for current question using Coach Agent.
+        """Submit user answer for evaluation and update running session stats.
         
         Args:
-            user_answer_text: Candidate's submitted text answer.
+            user_answer_text: Plain text response from candidate.
             
         Returns:
             CoachResponse dataclass containing score, max_score, and feedback.
         """
         if not self.current_question or not self.current_correct_answer:
-            raise ValueError("No active question to answer. Please call start_panel() first.")
+            return CoachResponse(
+                score=0,
+                max_score=10,
+                feedback="No active question available to evaluate. Please click 'Get Question' first."
+            )
 
-        # Delegate to Coach Agent
+        # 1. Delegate to Coach Agent for dual-stage draft & self-critique evaluation
         coach_req = CoachRequest(
             question=self.current_question,
             correct_answer=self.current_correct_answer,
@@ -77,7 +82,7 @@ class InterviewOrchestrator:
         )
         coach_res = coach_agent.evaluate(coach_req)
 
-        # Update session tracking statistics
+        # 2. Update running session statistics
         self.running_score += coach_res.score
         self.questions_asked += 1
 
@@ -85,8 +90,8 @@ class InterviewOrchestrator:
             "panel": self.current_panel,
             "role": self.current_role,
             "question": self.current_question,
-            "correct_answer": self.current_correct_answer,
             "user_answer": user_answer_text,
+            "correct_answer": self.current_correct_answer,
             "score": coach_res.score,
             "max_score": coach_res.max_score,
             "feedback": coach_res.feedback
@@ -95,11 +100,19 @@ class InterviewOrchestrator:
         return coach_res
 
     def get_summary(self) -> Dict[str, Any]:
-        """Return cumulative summary statistics for the interview session."""
-        avg_score = (self.running_score / self.questions_asked) if self.questions_asked > 0 else 0.0
+        """Return session statistics and complete question history.
+        
+        Returns:
+            Dict with running_score, questions_asked, average_score, and history list.
+        """
+        avg_score = (
+            round(self.running_score / self.questions_asked, 1)
+            if self.questions_asked > 0
+            else 0.0
+        )
         return {
             "running_score": self.running_score,
             "questions_asked": self.questions_asked,
-            "average_score": round(avg_score, 2),
+            "average_score": avg_score,
             "history": self.history
         }

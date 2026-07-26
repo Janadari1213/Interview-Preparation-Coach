@@ -473,15 +473,18 @@ with tab1:
                     with st.spinner(f"Fetching {st.session_state.selected_role} ({st.session_state.selected_diff.upper()}) question…"):
                         q_res = orchestrator.start_panel(
                             "practice_questions",
-                            role=st.session_state.selected_role
+                            role=st.session_state.selected_role,
+                            difficulty=st.session_state.selected_diff
                         )
                         st.session_state.t1_question_res = q_res
                         st.session_state.t1_coach_res = None
                         st.session_state.t1_answered = False
                         st.rerun()
                 except Exception as e:
+                    import traceback
                     print(f"[Tab 1 Error]: {e}")
-                    st.error("Something went wrong retrieving your question — please try again.")
+                    traceback.print_exc()
+                    st.error(f"Error fetching question: {e}")
         with col_btn2:
             if q_asked > 0 and st.button("Finish Session & View Report"):
                 st.session_state.t1_finished = True
