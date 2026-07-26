@@ -98,7 +98,7 @@ st.markdown("""
         font-size: 1.1rem;
     }
 </style>
-""", unsafe_allow_html=unsafe_allow_html)
+""", unsafe_allow_html=True)
 
 st.title("🎓 Interview Preparation Coach")
 st.caption("Agentic AI Interview Preparation Assistant (IT41043)")
