@@ -42,12 +42,13 @@ st.markdown("""
 
     /* Hero Banner Header */
     .hero-banner {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%);
-        border: 1px solid rgba(168, 85, 247, 0.3);
-        border-radius: 18px;
-        padding: 24px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 50%, rgba(6, 182, 212, 0.15) 100%);
+        border: 1px solid rgba(168, 85, 247, 0.35);
+        border-radius: 20px;
+        padding: 28px;
         margin-bottom: 24px;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
     }
 
     /* Glass Card Container */
@@ -67,6 +68,31 @@ st.markdown("""
         border-color: rgba(99, 102, 241, 0.4);
         box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.2);
         transform: translateY(-2px);
+    }
+
+    /* Strategy Specific Card */
+    .strategy-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 16px;
+        padding: 24px;
+        margin-top: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .pitfall-box {
+        background: rgba(220, 38, 38, 0.1);
+        border-left: 4px solid #ef4444;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 15px;
+    }
+
+    .solution-box {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 4px solid #10b981;
+        border-radius: 8px;
+        padding: 16px;
     }
 
     /* Metric Badges */
@@ -128,18 +154,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# App Hero Header
-st.markdown("""
-<div class="hero-banner">
-    <h1 style="margin:0; font-size: 2.2rem; background: linear-gradient(90deg, #a855f7, #6366f1, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-        🎓 Interview Preparation Coach
-    </h1>
-    <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 1rem;">
-        Agentic AI Interview Coaching & Outreach System | University Module IT41043
-    </p>
-</div>
-""", unsafe_allow_html=True)
-
 # -------------------------------------------------
 # Session state initialisation
 # -------------------------------------------------
@@ -147,6 +161,8 @@ if "orchestrator" not in st.session_state:
     st.session_state.orchestrator = InterviewOrchestrator()
 if "selected_role" not in st.session_state:
     st.session_state.selected_role = "Software Engineer"
+if "selected_diff" not in st.session_state:
+    st.session_state.selected_diff = "medium"
 
 # Session State for Tab 1
 if "t1_question_res" not in st.session_state:
@@ -165,6 +181,25 @@ if "t3_expert_res" not in st.session_state:
     st.session_state.t3_expert_res = None
 
 orchestrator: InterviewOrchestrator = st.session_state.orchestrator
+
+# App Hero Header
+st.markdown(f"""
+<div class="hero-banner">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div>
+            <h1 style="margin:0; font-size: 2.3rem; background: linear-gradient(90deg, #a855f7, #6366f1, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                🎓 Interview Preparation Coach
+            </h1>
+            <p style="margin: 6px 0 0 0; color: #cbd5e1; font-size: 1.05rem;">
+                Agentic AI Interview Coaching & Outreach System | University Module IT41043
+            </p>
+        </div>
+        <div style="margin-top: 10px;">
+            <span class="badge-purple">🎯 Active Track: {st.session_state.selected_role}</span>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # -------------------------------------------------
 # Sidebar – session metrics & role selector
@@ -222,18 +257,34 @@ tab1, tab2, tab3 = st.tabs([
 ])
 
 # -------------------------------------------------
-# Tab 1 – Practice Questions Studio (role‑aware & modern)
+# Tab 1 – Practice Questions Studio (Home UI & Interactive Hub)
 # -------------------------------------------------
 with tab1:
     summary_stats = orchestrator.get_summary()
     running_score = summary_stats["running_score"]
     q_asked = summary_stats["questions_asked"]
     max_possible = q_asked * 10
+    acc_rate = round((running_score / max_possible * 100), 1) if max_possible > 0 else 0.0
 
-    # Prominent score header
-    st.markdown(
-        f"### 📊 Active Track – **{st.session_state.selected_role}**: **Score: {running_score}/{max_possible}** ({q_asked} Attempted)"
-    )
+    # Interactive Target Role & Difficulty Hub
+    st.markdown("### 🚀 Interactive Practice Studio & Target Hub")
+    
+    col_hub1, col_hub2 = st.columns([3, 2])
+    with col_hub1:
+        st.markdown(
+            f"**Current Role Track:** <span class='badge-purple'>🎯 {st.session_state.selected_role}</span>",
+            unsafe_allow_html=True
+        )
+    with col_hub2:
+        diff_choice = st.radio(
+            "Question Complexity Level:",
+            ["easy", "medium", "hard"],
+            horizontal=True,
+            index=1,
+            key="rb_difficulty"
+        )
+        st.session_state.selected_diff = diff_choice
+
     st.divider()
 
     # ---------------------------------------------
@@ -270,8 +321,7 @@ with tab1:
         with m3:
             st.metric("Average Score", f"{avg_s} / 10")
         with m4:
-            acc_val = round((running_score / max_possible * 100), 1) if max_possible > 0 else 0
-            st.metric("Accuracy Rate", f"{acc_val}%")
+            st.metric("Accuracy Rate", f"{acc_rate}%")
 
         st.divider()
 
@@ -343,7 +393,7 @@ with tab1:
             btn_label = "Get Question" if st.session_state.t1_question_res is None else "Next Question"
             if st.button(btn_label, type="primary", key="btn_get_q"):
                 try:
-                    with st.spinner(f"Fetching {st.session_state.selected_role} question…"):
+                    with st.spinner(f"Fetching {st.session_state.selected_role} ({st.session_state.selected_diff.upper()}) question…"):
                         q_res = orchestrator.start_panel(
                             "practice_questions",
                             role=st.session_state.selected_role
@@ -369,6 +419,7 @@ with tab1:
                 <div style="margin-bottom: 12px;">
                     <span class="badge-purple">🎯 {st.session_state.selected_role}</span>
                     <span class="badge-cyan">📌 {q_data.topic}</span>
+                    <span class="badge-green">⚡ Complexity: {st.session_state.selected_diff.title()}</span>
                 </div>
                 <h3 style="margin-top: 10px; color: #f8fafc; font-size: 1.35rem; line-height: 1.5;">
                     {q_data.question}
