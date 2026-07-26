@@ -129,8 +129,11 @@ with tab1:
             btn_label = "Get Question" if st.session_state.t1_question_res is None else "Next Question"
             if st.button(btn_label, type="primary", key="btn_get_q"):
                 try:
-                    with st.spinner("Fetching question for role…"):
-                        q_res = orchestrator.start_panel("practice_questions")
+                    with st.spinner(f"Fetching {st.session_state.selected_role} question…"):
+                        q_res = orchestrator.start_panel(
+                            "practice_questions",
+                            role=st.session_state.selected_role
+                        )
                         st.session_state.t1_question_res = q_res
                         st.session_state.t1_coach_res = None
                         st.session_state.t1_answered = False
@@ -177,12 +180,15 @@ with tab1:
 # -------------------------------------------------
 with tab2:
     st.markdown("### 💡 Interview Technique & Strategy Guidance")
-    st.write("Select a role to see tips tailored to that position.")
+    st.write(f"Tailored advice for **{st.session_state.selected_role}** roles.")
     btn_label = "Get Coaching Tip" if st.session_state.t2_tip_res is None else "Fetch Another Tip"
     if st.button(btn_label, type="primary", key="btn_get_tip"):
         try:
             with st.spinner("Retrieving interview technique advice…"):
-                tip_res = orchestrator.start_panel("how_to_face_interview")
+                tip_res = orchestrator.start_panel(
+                    "how_to_face_interview",
+                    role=st.session_state.selected_role
+                )
                 st.session_state.t2_tip_res = tip_res
                 st.rerun()
         except Exception as e:
@@ -202,7 +208,10 @@ with tab3:
     if st.button(btn_label, type="primary", key="btn_get_expert"):
         try:
             with st.spinner("Retrieving networking guidance…"):
-                expert_res = orchestrator.start_panel("connect_with_experts")
+                expert_res = orchestrator.start_panel(
+                    "connect_with_experts",
+                    role=st.session_state.selected_role
+                )
                 st.session_state.t3_expert_res = expert_res
                 st.rerun()
         except Exception as e:

@@ -1,14 +1,23 @@
-## Q: What is the TCP/IP model and what are its core layers?
-**Topic:** Computer Networks
-**Difficulty:** easy
-**A:** The TCP/IP model is a concise networking framework designed for internet communication, consisting of four layers: Network Access (Link), Internet, Transport, and Application. It defines how data is formatted, addressed, transmitted, routed, and received across network connections. Key protocols operating within TCP/IP include IP for packet routing and TCP/UDP for host-to-host data delivery.
+## Q: What are the layers of the OSI model and what is the function of each?
 
-## Q: What are the seven layers of the OSI model?
-**Topic:** Computer Networks
-**Difficulty:** medium
-**A:** The OSI (Open Systems Interconnection) reference model divides network communication into seven distinct layers: Physical, Data Link, Network, Transport, Session, Presentation, and Application. Each layer serves a dedicated purpose, allowing vendors to build interoperable hardware and software systems. The model provides a standardized architectural reference for network protocols.
+**Topic:** Computer Networking  
+**Role:** Software Engineer  
+**Difficulty:** medium  
+**Q:** What are the layers of the OSI model and what is the function of each?  
+**A:** The OSI 7-layer model includes: 1) Physical (bits transmission), 2) Data Link (mac addressing/frames), 3) Network (IP routing/packets), 4) Transport (TCP/UDP segmentation and port control), 5) Session (connection management), 6) Presentation (encryption/compression), 7) Application (HTTP/FTP user protocols).
 
 ## Q: How does TCP differ from UDP?
-**Topic:** Computer Networks
-**Difficulty:** medium
-**A:** TCP (Transmission Control Protocol) is a connection-oriented, reliable protocol that guarantees packet ordering and delivery through error-checking and flow control. In contrast, UDP (User Datagram Protocol) is connectionless, lightweight, and fast, prioritizing low latency over packet delivery guarantees. Applications such as web browsing and file transfers rely on TCP, whereas real-time streaming and gaming prefer UDP.
+
+**Topic:** Computer Networking  
+**Role:** Software Engineer  
+**Difficulty:** easy  
+**Q:** How does TCP differ from UDP?  
+**A:** TCP is a connection-oriented, reliable protocol providing ordered packet delivery, flow control, and error checking via 3-way handshake. UDP is a connectionless, unreliable protocol prioritizing low latency without packet delivery guarantees (ideal for video streaming and gaming).
+
+## Q: What is the TCP 3-Way Handshake process?
+
+**Topic:** Computer Networking  
+**Role:** Software Engineer  
+**Difficulty:** medium  
+**Q:** What is the TCP 3-Way Handshake process?  
+**A:** The 3-way handshake establishes a reliable TCP connection: 1) Client sends SYN packet to server. 2) Server responds with SYN-ACK packet. 3) Client sends ACK packet to server, establishing connection state.

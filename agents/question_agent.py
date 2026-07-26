@@ -1,6 +1,7 @@
-"""Question/Content Agent — ReAct pattern retrieve-vs-generate."""
+"""Question/Content Agent — ReAct pattern retrieve-vs-generate with role awareness."""
 
 import re
+import random
 from protocol.messages import QuestionRequest, QuestionResponse
 from kb.retriever import retrieve
 from models.groq_client import call_groq
@@ -16,28 +17,34 @@ def extract_correct_answer(chunk_text: str) -> str:
 
 
 def get_content(request: QuestionRequest) -> QuestionResponse:
-    """Retrieve content chunk and apply ReAct pattern to judge and optionally rephrase.
+    """Retrieve content chunk for role and apply ReAct pattern to judge and optionally rephrase.
     
     Args:
-        request: QuestionRequest specifying collection and difficulty.
+        request: QuestionRequest specifying collection, difficulty, and role.
         
     Returns:
         QuestionResponse containing question, correct_answer, and topic.
     """
     coll = request.collection
     diff = request.difficulty
+    role = request.role
 
-    # 1. Retrieve top matching chunk from Knowledge Base
-    retrieved_items = retrieve(collection_name=coll, query="interview question", top_k=1, difficulty=diff)
+    # 1. Retrieve top matching chunks from Knowledge Base for role
+    query = f"{role} interview question" if role else "interview question"
+    retrieved_items = retrieve(collection_name=coll, query=query, top_k=5, difficulty=diff, role=role)
     
     if not retrieved_items:
+        retrieved_items = retrieve(collection_name=coll, query=query, top_k=5, role=role)
+
+    if not retrieved_items:
         return QuestionResponse(
-            question="What are your key strengths and technical background?",
-            correct_answer="Candidate should outline relevant technical skills and problem-solving experience.",
+            question=f"What are your primary technical skills and key responsibilities as a {role or 'Candidate'}?",
+            correct_answer="Candidate should outline relevant technical skills, framework knowledge, and problem-solving experience.",
             topic="General"
         )
 
-    top_item = retrieved_items[0]
+    # Random selection among matching top-5 items to vary questions across requests
+    top_item = random.choice(retrieved_items)
     chunk_text = top_item["text"]
     topic = top_item.get("metadata", {}).get("topic", "General")
     correct_answer = extract_correct_answer(chunk_text)

@@ -5,7 +5,7 @@ import chromadb
 from chromadb.utils import embedding_functions
 
 
-def retrieve(collection_name: str, query: str, top_k: int = 1, difficulty: str = None) -> list[dict]:
+def retrieve(collection_name: str, query: str, top_k: int = 1, difficulty: str = None, role: str = None) -> list[dict]:
     """Retrieve top-k matching documents from a Chroma DB collection.
     
     Args:
@@ -13,6 +13,7 @@ def retrieve(collection_name: str, query: str, top_k: int = 1, difficulty: str =
         query: Search query text.
         top_k: Number of results to return.
         difficulty: Optional difficulty filter ('easy', 'medium', 'hard').
+        role: Optional role filter ('Software Engineer', 'Data Analyst', 'Product Manager', 'UX Designer').
         
     Returns:
         List of dicts containing 'text', 'metadata', and 'score' / 'similarity'.
@@ -36,17 +37,35 @@ def retrieve(collection_name: str, query: str, top_k: int = 1, difficulty: str =
     except Exception as e:
         raise ValueError(f"Collection '{collection_name}' not found: {e}")
 
-    # Build filter if difficulty provided
-    where_filter = None
+    # Build filter if difficulty / role provided
+    where_conditions = []
+    if role and collection_name == "technical_qa":
+        where_conditions.append({"role": role})
     if difficulty and collection_name == "technical_qa":
-        where_filter = {"difficulty": difficulty.lower()}
+        where_conditions.append({"difficulty": difficulty.lower()})
+
+    if len(where_conditions) == 1:
+        where_filter = where_conditions[0]
+    elif len(where_conditions) > 1:
+        where_filter = {"$and": where_conditions}
+    else:
+        where_filter = None
 
     # Execute query
-    results = collection.query(
-        query_texts=[query],
-        n_results=top_k,
-        where=where_filter
-    )
+    try:
+        results = collection.query(
+            query_texts=[query],
+            n_results=top_k,
+            where=where_filter
+        )
+    except Exception:
+        # Fallback to role-only filter if difficulty combo yields zero or error
+        fallback_where = {"role": role} if role and collection_name == "technical_qa" else None
+        results = collection.query(
+            query_texts=[query],
+            n_results=top_k,
+            where=fallback_where
+        )
 
     retrieved = []
     if results and results.get("documents") and results["documents"][0]:
@@ -55,7 +74,6 @@ def retrieve(collection_name: str, query: str, top_k: int = 1, difficulty: str =
         distances = results["distances"][0] if results.get("distances") else [0.0] * len(docs)
 
         for doc, meta, dist in zip(docs, metas, distances):
-            # Compute cosine / distance similarity score (1 - distance for cosine/normalized distance)
             sim_score = max(0.0, 1.0 - float(dist)) if dist is not None else 1.0
             retrieved.append({
                 "text": doc,

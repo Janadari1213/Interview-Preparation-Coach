@@ -1,14 +1,23 @@
-## Q: What is Database Normalization and why is it used?
-**Topic:** Database Management Systems
-**Difficulty:** easy
-**A:** Normalization is the systematic process of organizing data in a relational database to minimize data redundancy and prevent update anomalies. It involves decomposing large, unstructured tables into smaller, well-structured tables linked by foreign keys. Standard normal forms include First Normal Form (1NF), Second Normal Form (2NF), Third Normal Form (3NF), and BCNF.
+## Q: What are the ACID properties in database management systems?
 
-## Q: What is a database index and what are its trade-offs?
-**Topic:** Database Management Systems
-**Difficulty:** medium
-**A:** A database index is a data structure (typically a B-Tree or Hash table) that speeds up data retrieval operations on a table at the expense of additional storage and write performance. By maintaining sorted references to row locations, indexes allow queries to execute logarithmic search rather than full table scans. However, every INSERT, UPDATE, or DELETE operation incurs overhead because indexes must also be updated.
+**Topic:** DBMS  
+**Role:** Software Engineer  
+**Difficulty:** medium  
+**Q:** What are the ACID properties in database management systems?  
+**A:** **Atomicity**: Transactions commit completely or roll back entirely. **Consistency**: Transactions transition database from one valid state to another. **Isolation**: Concurrent transactions execute independently without interference. **Durability**: Committed data persists permanently even during power outages.
 
-## Q: What are ACID properties and SQL Joins in relational databases?
-**Topic:** Database Management Systems
-**Difficulty:** hard
-**A:** ACID stands for Atomicity, Consistency, Isolation, and Durability, which collectively guarantee reliable database transactions even in the event of errors or system crashes. SQL Joins (INNER, LEFT, RIGHT, FULL OUTER) allow users to combine rows from two or more tables based on related columns. Together, ACID transactions and SQL Joins ensure data integrity while enabling complex queries across relational entities.
+## Q: What is Database Normalization and why is 3NF important?
+
+**Topic:** DBMS  
+**Role:** Software Engineer  
+**Difficulty:** medium  
+**Q:** What is Database Normalization and why is 3NF important?  
+**A:** Normalization organizes table columns and relations to eliminate data redundancy and insertion/update/deletion anomalies. 3rd Normal Form (3NF) requires that tables are in 2NF and all non-key attributes depend solely on the primary key (no transitive dependencies).
+
+## Q: How does Database Indexing speed up query performance?
+
+**Topic:** DBMS  
+**Role:** Software Engineer  
+**Difficulty:** hard  
+**Q:** How does Database Indexing speed up query performance?  
+**A:** Indexing creates auxiliary search data structures (typically B-Trees or Hash tables) mapping indexed keys directly to row pointers, reducing query lookup time complexity from $O(N)$ full table scans to $O(\log N)$ tree traversals.

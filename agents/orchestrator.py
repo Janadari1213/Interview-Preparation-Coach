@@ -20,30 +20,34 @@ class InterviewOrchestrator:
         self.running_score: int = 0
         self.questions_asked: int = 0
         self.current_panel: str = None
+        self.current_role: str = None
         self.current_question: str = None
         self.current_correct_answer: str = None
         self.history: List[Dict[str, Any]] = []
 
-    def start_panel(self, panel_name: str) -> QuestionResponse:
-        """Start or switch panel, route query, and fetch appropriate question content.
+    def start_panel(self, panel_name: str, role: str = None) -> QuestionResponse:
+        """Start or switch panel, route query, and fetch role-appropriate question content.
         
         Args:
             panel_name: Name of interview panel ('practice_questions', 'how_to_face_interview', 'connect_with_experts').
+            role: Candidate role ('Software Engineer', 'Data Analyst', 'Product Manager', 'UX Designer').
             
         Returns:
             QuestionResponse dataclass containing question, correct_answer, and topic.
         """
         self.current_panel = panel_name
+        self.current_role = role
         
         # 1. Delegate to Router Agent
-        router_req = RouterRequest(panel=panel_name)
+        router_req = RouterRequest(panel=panel_name, role=role)
         router_res = router_agent.route(router_req)
 
         # 2. Delegate to Question Agent
         q_req = QuestionRequest(
             type="get_content",
             collection=router_res.kb_collection,
-            difficulty=router_res.difficulty
+            difficulty=router_res.difficulty,
+            role=role
         )
         q_res = question_agent.get_content(q_req)
 
@@ -79,6 +83,7 @@ class InterviewOrchestrator:
 
         self.history.append({
             "panel": self.current_panel,
+            "role": self.current_role,
             "question": self.current_question,
             "correct_answer": self.current_correct_answer,
             "user_answer": user_answer_text,

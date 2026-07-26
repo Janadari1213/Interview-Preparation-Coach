@@ -41,9 +41,24 @@ def parse_markdown_chunks(file_path: Path) -> list[dict]:
         else:
             difficulty = "medium"
 
+        # Extract role if present
+        role_match = re.search(r'\*\*Role:\*\*\s*(.+)', sec_str, re.IGNORECASE)
+        if role_match:
+            role = role_match.group(1).strip()
+        else:
+            if "data_analyst" in filename:
+                role = "Data Analyst"
+            elif "product_manager" in filename:
+                role = "Product Manager"
+            elif "ux_designer" in filename:
+                role = "UX Designer"
+            else:
+                role = "Software Engineer"
+
         metadata = {
             "topic": topic,
             "difficulty": difficulty,
+            "role": role,
             "source": filename
         }
 
