@@ -35,6 +35,28 @@ if "t2_tip_res" not in st.session_state:
 if "t3_expert_res" not in st.session_state:
     st.session_state.t3_expert_res = None
 
+# ==========================================
+# SIDEBAR PANEL
+# ==========================================
+with st.sidebar:
+    st.header("📋 Session Info")
+    stats = orchestrator.get_summary()
+    
+    st.metric("Total Score", f"{stats['running_score']} / {stats['questions_asked'] * 10}")
+    st.metric("Questions Answered", stats["questions_asked"])
+    st.metric("Average Score", f"{stats['average_score']} / 10")
+    
+    st.divider()
+    if st.button("🔄 Reset Session", type="secondary", use_container_width=True):
+        st.session_state.orchestrator = InterviewOrchestrator()
+        st.session_state.t1_question_res = None
+        st.session_state.t1_coach_res = None
+        st.session_state.t1_answered = False
+        st.session_state.t1_finished = False
+        st.session_state.t2_tip_res = None
+        st.session_state.t3_expert_res = None
+        st.rerun()
+
 # Main navigation tabs
 tab1, tab2, tab3 = st.tabs([
     "🎯 Practice Questions",
