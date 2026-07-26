@@ -70,6 +70,30 @@ st.markdown("""
         transform: translateY(-2px);
     }
 
+    /* Sidebar Glass Card */
+    .sidebar-glass-card {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.85) 100%);
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 18px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar-stat-label {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+
+    .sidebar-stat-value {
+        font-family: 'Outfit', sans-serif;
+        color: #f8fafc;
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+
     /* Strategy Specific Card */
     .strategy-card {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -148,7 +172,7 @@ st.markdown("""
 
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
-        background-color: rgba(15, 23, 42, 0.9);
+        background-color: rgba(15, 23, 42, 0.95);
         border-right: 1px solid rgba(255, 255, 255, 0.08);
     }
 </style>
@@ -202,28 +226,79 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # -------------------------------------------------
-# Sidebar – session metrics & role selector
+# Sidebar – Ultra-Modern Interactive Control Center
 # -------------------------------------------------
 with st.sidebar:
-    st.header("📋 Session Dashboard")
+    st.markdown("### 📊 Performance Control Center")
     stats = orchestrator.get_summary()
     q_count = stats["questions_asked"]
     running = stats["running_score"]
     max_pts = q_count * 10
     pct = round((running / max_pts * 100), 1) if max_pts > 0 else 0.0
 
-    st.metric("Total Score", f"{running} / {max_pts}")
-    st.metric("Questions Attempted", q_count)
-    st.metric("Average Score", f"{stats['average_score']} / 10")
-    st.metric("Accuracy Rate", f"{pct}%")
-    
+    # Overall Performance Tier Badge
+    if pct >= 85:
+        tier_label = "🌟 Master Class"
+        tier_color = "#10b981"
+    elif pct >= 65:
+        tier_label = "👍 Competent"
+        tier_color = "#38bdf8"
+    else:
+        tier_label = "💪 Developing"
+        tier_color = "#f59e0b"
+
+    # Glass Card 1: Score & Accuracy Dashboard
+    st.markdown(f"""
+    <div class="sidebar-glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Live Metrics</span>
+            <span style="background: rgba(255,255,255,0.1); color: {tier_color}; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">
+                {tier_label}
+            </span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px;">
+            <div>
+                <div class="sidebar-stat-label">Total Score</div>
+                <div class="sidebar-stat-value" style="color: #38bdf8;">{running} <span style="font-size: 0.9rem; color: #64748b;">/ {max_pts}</span></div>
+            </div>
+            <div style="text-align: right;">
+                <div class="sidebar-stat-label">Accuracy Rate</div>
+                <div class="sidebar-stat-value" style="color: #a855f7;">{pct}%</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Accuracy Progress Bar Visual
+    st.caption("Accuracy Rate Meter")
+    st.progress(pct / 100.0)
+
+    # Glass Card 2: Question & Average Score Row
+    col_sb1, col_sb2 = st.columns(2)
+    with col_sb1:
+        st.metric("Questions", q_count)
+    with col_sb2:
+        st.metric("Avg Score", f"{stats['average_score']}/10")
+
     st.divider()
-    # Role selection (interactive)
+
+    # SECTION 2: Role Selector Card
+    st.markdown("### 🎯 Target Role Selector")
+    role_icon_map = {
+        "Software Engineer": "💻 Software Engineer",
+        "Data Analyst": "📊 Data Analyst",
+        "Product Manager": "📦 Product Manager",
+        "UX Designer": "🎨 UX Designer"
+    }
+
     selected = st.selectbox(
-        "Select Target Role",
+        "Choose Your Profession:",
         ["Software Engineer", "Data Analyst", "Product Manager", "UX Designer"],
+        format_func=lambda x: role_icon_map.get(x, x),
         index=0,
+        key="sb_role_select"
     )
+
     if selected != st.session_state.selected_role:
         st.session_state.selected_role = selected
         # Reset session when role changes to avoid mixing scores
@@ -237,7 +312,9 @@ with st.sidebar:
         st.rerun()
 
     st.divider()
-    if st.button("🔄 Reset Session", type="secondary", use_container_width=True):
+
+    # SECTION 3: Session Actions
+    if st.button("🔄 Reset Active Session", type="secondary", use_container_width=True):
         st.session_state.orchestrator = InterviewOrchestrator()
         st.session_state.t1_question_res = None
         st.session_state.t1_coach_res = None
