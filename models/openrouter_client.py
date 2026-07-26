@@ -5,20 +5,26 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Load environment variables from project root .env (absolute path so Streamlit always finds it)
+# Load environment variables from project root .env
 _ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(dotenv_path=_ENV_PATH)
+load_dotenv(dotenv_path=_ENV_PATH, override=True)
 
 
 def get_openrouter_api_key() -> str:
     """Retrieve OpenRouter API key checking Streamlit secrets first, then environment."""
     try:
         import streamlit as st
-        if "OPENROUTER_API_KEY" in st.secrets and st.secrets["OPENROUTER_API_KEY"]:
-            return st.secrets["OPENROUTER_API_KEY"]
+        if "OPENROUTER_API_KEY" in st.secrets and str(st.secrets["OPENROUTER_API_KEY"]).strip():
+            return str(st.secrets["OPENROUTER_API_KEY"]).strip()
     except Exception:
         pass
-    return os.getenv("OPENROUTER_API_KEY", "")
+
+    load_dotenv(dotenv_path=_ENV_PATH, override=True)
+    val = os.getenv("OPENROUTER_API_KEY", "")
+    if not val:
+        load_dotenv(dotenv_path=Path.cwd() / ".env", override=True)
+        val = os.getenv("OPENROUTER_API_KEY", "")
+    return val.strip()
 
 
 def call_openrouter(prompt: str, model: str = "openai/gpt-4o-mini", system: str = None) -> str:
