@@ -1,12 +1,38 @@
-"""Retriever module: Queries Chroma DB collections and returns top matching chunks with metadata."""
+"""Retriever module: Queries Chroma DB collections and returns top matching chunks with metadata.
+Includes auto-ingestion on missing DB directory and in-memory singleton caching for lightning-fast performance.
+"""
 
 from pathlib import Path
 import chromadb
 from chromadb.utils import embedding_functions
 
+_CHROMA_CLIENT = None
+_EMBEDDING_FUNC = None
+
+
+def _get_client_and_embedding(chroma_db_dir: Path):
+    """Singleton getter for PersistentClient and SentenceTransformer embedding function."""
+    global _CHROMA_CLIENT, _EMBEDDING_FUNC
+
+    if not chroma_db_dir.exists():
+        print(f"[Auto-Ingest] Chroma DB directory not found at {chroma_db_dir}. Triggering auto-ingestion...")
+        try:
+            from kb import ingest
+            ingest.ingest()
+        except Exception as e:
+            print(f"[Auto-Ingest Failure]: {e}")
+
+    if _CHROMA_CLIENT is None:
+        _CHROMA_CLIENT = chromadb.PersistentClient(path=str(chroma_db_dir))
+    if _EMBEDDING_FUNC is None:
+        _EMBEDDING_FUNC = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name="all-MiniLM-L6-v2"
+        )
+    return _CHROMA_CLIENT, _EMBEDDING_FUNC
+
 
 def retrieve(collection_name: str, query: str, top_k: int = 1, difficulty: str = None, role: str = None) -> list[dict]:
-    """Retrieve top-k matching documents from a Chroma DB collection safely.
+    """Retrieve top-k matching documents from a Chroma DB collection safely and rapidly.
     
     Args:
         collection_name: Name of Chroma collection ('technical_qa', 'interview_tips', 'networking_advice').
@@ -21,21 +47,26 @@ def retrieve(collection_name: str, query: str, top_k: int = 1, difficulty: str =
     kb_dir = Path(__file__).parent
     chroma_db_dir = kb_dir / "chroma_db"
 
-    if not chroma_db_dir.exists():
-        raise FileNotFoundError(f"Chroma DB directory not found at {chroma_db_dir}. Please run kb/ingest.py first.")
-
-    client = chromadb.PersistentClient(path=str(chroma_db_dir))
-    embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name="all-MiniLM-L6-v2"
-    )
-
     try:
+        client, embedding_func = _get_client_and_embedding(chroma_db_dir)
         collection = client.get_collection(
             name=collection_name,
             embedding_function=embedding_func
         )
     except Exception as e:
-        raise ValueError(f"Collection '{collection_name}' not found: {e}")
+        print(f"[Retriever Warning] Collection '{collection_name}' access failed: {e}")
+        # Try re-ingesting and re-fetching
+        try:
+            from kb import ingest
+            ingest.ingest()
+            client, embedding_func = _get_client_and_embedding(chroma_db_dir)
+            collection = client.get_collection(
+                name=collection_name,
+                embedding_function=embedding_func
+            )
+        except Exception as e2:
+            print(f"[Retriever Error]: {e2}")
+            return []
 
     total_count = collection.count()
     if total_count == 0:

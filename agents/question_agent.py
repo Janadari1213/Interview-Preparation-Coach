@@ -1,4 +1,4 @@
-"""Question/Content Agent — ReAct pattern retrieve-vs-generate with role awareness."""
+"""Question/Content Agent — ReAct pattern retrieve-vs-generate with role awareness and ultra-fast caching."""
 
 import re
 import random
@@ -36,7 +36,7 @@ def extract_question_prompt(chunk_text: str) -> str:
 
 
 def get_content(request: QuestionRequest) -> QuestionResponse:
-    """Retrieve content chunk for role and apply ReAct pattern to judge and optionally rephrase.
+    """Retrieve content chunk for role and apply fast-path or ReAct pattern.
     
     Args:
         request: QuestionRequest specifying collection, difficulty, and role.
@@ -69,7 +69,15 @@ def get_content(request: QuestionRequest) -> QuestionResponse:
     correct_answer = extract_correct_answer(chunk_text)
     clean_question = extract_question_prompt(chunk_text)
 
-    # 2. ReAct Step: Call Groq to evaluate if chunk needs rewriting
+    # FAST PATH: If clean_question is already a valid formatted question prompt, return immediately for sub-second speed!
+    if clean_question and len(clean_question) >= 10 and not clean_question.startswith("["):
+        return QuestionResponse(
+            question=clean_question,
+            correct_answer=correct_answer,
+            topic=topic
+        )
+
+    # Fallback ReAct Step if chunk is raw or unformatted
     react_system = (
         "You are a ReAct Content Evaluation Agent. "
         "Analyze the retrieved text chunk and decide if it is clear to present directly to a user, "
@@ -81,7 +89,6 @@ def get_content(request: QuestionRequest) -> QuestionResponse:
 
     should_rewrite = "REWRITE" in react_decision.upper()
 
-    # 3. Execution step: If rewrite requested, rephrase with OpenRouter while keeping correct_answer intact
     if should_rewrite and not react_decision.startswith("[Groq Error]"):
         rewrite_system = (
             "You are a Question Formatting Assistant. "
