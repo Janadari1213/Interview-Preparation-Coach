@@ -1,6 +1,7 @@
 """Streamlit UI Application for Interview Preparation Coach with Role Selection."""
 
 import os
+import re
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -61,7 +62,7 @@ with st.sidebar:
     st.divider()
     # Role selection (interactive)
     selected = st.selectbox(
-        "Select Role",
+        "Select Target Role",
         ["Software Engineer", "Data Analyst", "Product Manager", "UX Designer"],
         index=0,
     )
@@ -190,7 +191,8 @@ with tab1:
 # -------------------------------------------------
 with tab2:
     st.markdown("### 💡 Interview Technique & Strategy Guidance")
-    st.write(f"Tailored advice for **{st.session_state.selected_role}** roles.")
+    st.write(f"Tailored advice and best practices for **{st.session_state.selected_role}** interviews.")
+    
     btn_label = "Get Coaching Tip" if st.session_state.t2_tip_res is None else "Fetch Another Tip"
     if st.button(btn_label, type="primary", key="btn_get_tip"):
         try:
@@ -204,21 +206,135 @@ with tab2:
         except Exception as e:
             print(f"[Tab 2 Error]: {e}")
             st.error("Something went wrong retrieving your tip — please try again.")
+            
     if st.session_state.t2_tip_res:
         t_data = st.session_state.t2_tip_res
         st.divider()
         st.subheader(f"📌 Role: {st.session_state.selected_role} | Topic: {t_data.topic}")
-        st.markdown(t_data.question)
+        # Clean heading markdown syntax if present
+        clean_tip_text = re.sub(r'^##\s*', '', t_data.question).strip()
+        st.markdown(clean_tip_text)
 
 # -------------------------------------------------
-# Tab 3 – Connect with Industry Experts (role‑aware)
+# Tab 3 – Connect with Industry Experts (Modern Remake)
 # -------------------------------------------------
 with tab3:
-    st.markdown("### 🤝 Networking & Outreach Strategies")
-    btn_label = "Get Outreach Guide / Template" if st.session_state.t3_expert_res is None else "Fetch Another Guide"
-    if st.button(btn_label, type="primary", key="btn_get_expert"):
+    st.markdown("## 🤝 Expert Networking & Outreach Studio")
+    st.caption(f"Build genuine industry connections, request 15-minute informational interviews, and land job referrals for **{st.session_state.selected_role}** roles.")
+    st.divider()
+
+    # SECTION 1: 3-Step Networking Playbook
+    st.markdown("### 🚀 Step-by-Step Networking Playbook")
+    col_pb1, col_pb2, col_pb3 = st.columns(3)
+    
+    with col_pb1:
+        st.markdown("""
+        #### 🔎 1. Identify & Prospect
+        - **Target**: Senior {role}s, Lead Engineers, or University Alumni at your dream companies.
+        - **Research**: Read their recent posts, patents, or shared articles before reaching out.
+        """.format(role=st.session_state.selected_role))
+        
+    with col_pb2:
+        st.markdown("""
+        #### ✍️ 2. The 300-Char Hook
+        - Keep LinkedIn notes **under 300 characters**.
+        - Include 1 personal hook (e.g. shared university, specific post, or common tech stack).
+        - **Never** ask for a job in the first message.
+        """)
+
+    with col_pb3:
+        st.markdown("""
+        #### ☕ 3. 15-Min Info Chat
+        - Ask for a brief 15-minute virtual coffee chat.
+        - Prepare 3 thoughtful questions about their career growth and technical challenges.
+        - Send a warm thank-you note within 24 hours.
+        """)
+
+    st.divider()
+
+    # SECTION 2: Interactive Outreach Template Builder
+    st.markdown("### ✉️ Interactive Message Template Builder")
+    st.write("Customize outreach messages tailored to your target role and scenario:")
+
+    template_type = st.selectbox(
+        "Select Outreach Scenario",
+        [
+            "🎓 University Alumni Connection",
+            "☕ Informational Interview Request",
+            "🎤 Post-Event / Webinar Follow-Up",
+            "🚀 Respectful Job Referral Request",
+            "⚡ Role-Specific Cold Outreach",
+        ],
+        key="sb_template_type"
+    )
+
+    with st.expander("⚙️ Customize Message Placeholders (Optional)", expanded=True):
+        c_p1, c_p2 = st.columns(2)
+        with c_p1:
+            your_name = st.text_input("Your Name", value="Alex", key="input_your_name")
+            expert_name = st.text_input("Expert / Professional Name", value="Sarah", key="input_expert_name")
+        with c_p2:
+            target_company = st.text_input("Target Company", value="Google", key="input_target_company")
+            specific_topic = st.text_input("Specific Topic / Event / Project", value="System Design & AI Agent Architecture", key="input_topic")
+
+    # Generate custom template string based on choice
+    role_curr = st.session_state.selected_role
+
+    if "Alumni" in template_type:
+        template_text = (
+            f"Hi {expert_name}, I noticed we both graduated from University! I am currently preparing for "
+            f"roles in {role_curr} and am really inspired by your career journey at {target_company}. "
+            f"I would love to connect and follow your work in the field.\n\nBest regards,\n{your_name}"
+        )
+        pro_tip = "💡 Pro-Tip: Mentioning shared school or university background boosts LinkedIn connection acceptance rates by over 40%!"
+
+    elif "Informational Interview" in template_type:
+        template_text = (
+            f"Hi {expert_name}, thank you for connecting! I really enjoyed reading your insights on {specific_topic}. "
+            f"As an aspiring {role_curr}, I would be incredibly grateful to hear about your experience at {target_company}. "
+            f"Would you be open to a brief 15-minute virtual coffee chat sometime next week?\n\nThanks so much,\n{your_name}"
+        )
+        pro_tip = "💡 Pro-Tip: Be specific about why you want to talk to them. Respect their time by promising to keep it strictly under 15 minutes."
+
+    elif "Post-Event" in template_type:
+        template_text = (
+            f"Hi {expert_name}, it was great attending your talk on {specific_topic}! I really resonated with "
+            f"your points regarding {role_curr} best practices. I'd love to stay connected here on LinkedIn "
+            f"and keep in touch as I pursue opportunities in the industry.\n\nBest,\n{your_name}"
+        )
+        pro_tip = "💡 Pro-Tip: Send this within 24 hours of the event while the conversation is still fresh in their memory!"
+
+    elif "Referral Request" in template_type:
+        template_text = (
+            f"Hi {expert_name}, hope you are having a great week! I recently applied for the {role_curr} position "
+            f"at {target_company}. Having followed your team's work on {specific_topic}, I'm extremely excited about "
+            f"the direction. If you have a few minutes, I'd appreciate any advice on the team culture, or a brief "
+            f"referral if appropriate.\n\nThanks for your time!\n{your_name}"
+        )
+        pro_tip = "💡 Pro-Tip: Only ask for a referral if you have built initial rapport or have a mutual connection."
+
+    else:  # Role-Specific Cold Outreach
+        template_text = (
+            f"Hi {expert_name}, I came across your profile while researching lead {role_curr} professionals working "
+            f"on {specific_topic} at {target_company}. As someone passionate about {role_curr}, I would love to connect "
+            f"and follow your work!\n\nBest,\n{your_name}"
+        )
+        pro_tip = f"💡 Pro-Tip: Tailor your message to focus specifically on {role_curr} skills and project topics!"
+
+    st.markdown("#### 📋 Ready-to-Send Message Card:")
+    st.code(template_text, language="text")
+    st.info(pro_tip)
+
+    st.divider()
+
+    # SECTION 3: RAG AI Knowledge Base Insights
+    st.markdown("### 🤖 Deep-Dive Knowledge Base Advice (AI RAG)")
+    st.write(f"Pull advanced strategic guides from our vector knowledge base for **{role_curr}**:")
+
+    btn_t3_label = "Fetch AI Knowledge Base Insight" if st.session_state.t3_expert_res is None else "Fetch Another AI Insight"
+    if st.button(btn_t3_label, type="primary", key="btn_get_expert"):
         try:
-            with st.spinner("Retrieving networking guidance…"):
+            with st.spinner("Retrieving expert networking insight from Knowledge Base…"):
                 expert_res = orchestrator.start_panel(
                     "connect_with_experts",
                     role=st.session_state.selected_role
@@ -228,13 +344,14 @@ with tab3:
         except Exception as e:
             print(f"[Tab 3 Error]: {e}")
             st.error("Something went wrong retrieving your guide — please try again.")
+
     if st.session_state.t3_expert_res:
         e_data = st.session_state.t3_expert_res
-        st.divider()
-        st.subheader(f"🌐 Role: {st.session_state.selected_role} | Topic: {e_data.topic}")
-        content_text = e_data.question
-        if "Template" in content_text or "Hi [" in content_text:
-            st.write("#### Message Template:")
-            st.code(content_text, language="markdown")
-        else:
-            st.markdown(content_text)
+        st.markdown(f"#### 🌐 Topic: **{e_data.topic}**")
+        
+        # Clean formatting: strip Markdown raw headings to prevent raw '## Template' blocks
+        raw_text = e_data.question
+        clean_text = re.sub(r'^##\s*', '', raw_text).strip()
+        
+        # Renders in clean, high-contrast blockquote card
+        st.success(f"**Knowledge Insight:**\n\n{clean_text}")
