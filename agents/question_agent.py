@@ -16,6 +16,25 @@ def extract_correct_answer(chunk_text: str) -> str:
     return chunk_text.strip()
 
 
+def extract_question_prompt(chunk_text: str) -> str:
+    """Extract clean question prompt string without leaking reference answer or metadata tags."""
+    # 1. Try finding **Q:** prompt string
+    q_match = re.search(r'\*\*Q:\*\*\s*(.*?)(?=\*\*A:\*\*|$)', chunk_text, re.DOTALL)
+    if q_match and q_match.group(1).strip():
+        return q_match.group(1).strip()
+    
+    # 2. Try finding ## Q: header line
+    header_match = re.search(r'##\s*Q:\s*(.*?)(?=\*\*Topic|\*\*Role|\*\*Difficulty|\*\*A:|$)', chunk_text, re.DOTALL)
+    if header_match and header_match.group(1).strip():
+        return header_match.group(1).strip()
+
+    # 3. Fallback: remove **A:** section and metadata lines
+    cleaned = re.sub(r'\*\*A:\*\*.*$', '', chunk_text, flags=re.DOTALL)
+    cleaned = re.sub(r'\*\*(Topic|Role|Difficulty):\*\*.*$', '', cleaned, flags=re.MULTILINE)
+    cleaned = re.sub(r'^##\s*', '', cleaned, flags=re.MULTILINE)
+    return cleaned.strip()
+
+
 def get_content(request: QuestionRequest) -> QuestionResponse:
     """Retrieve content chunk for role and apply ReAct pattern to judge and optionally rephrase.
     
@@ -48,6 +67,7 @@ def get_content(request: QuestionRequest) -> QuestionResponse:
     chunk_text = top_item["text"]
     topic = top_item.get("metadata", {}).get("topic", "General")
     correct_answer = extract_correct_answer(chunk_text)
+    clean_question = extract_question_prompt(chunk_text)
 
     # 2. ReAct Step: Call Groq to evaluate if chunk needs rewriting
     react_system = (
@@ -56,7 +76,7 @@ def get_content(request: QuestionRequest) -> QuestionResponse:
         "or if it needs light rewriting for clarity into a natural question format. "
         "Respond strictly with either 'DECISION: AS_IS' or 'DECISION: REWRITE'."
     )
-    react_prompt = f"Retrieved Chunk:\n{chunk_text}"
+    react_prompt = f"Retrieved Chunk:\n{clean_question}"
     react_decision = call_groq(prompt=react_prompt, system=react_system)
 
     should_rewrite = "REWRITE" in react_decision.upper()
@@ -68,11 +88,11 @@ def get_content(request: QuestionRequest) -> QuestionResponse:
             "Rephrase the following retrieved interview prompt into a natural, clear question or scenario. "
             "Do NOT change the underlying technical core concept or answer requirements."
         )
-        question_text = call_openrouter(prompt=f"Text: {chunk_text}", system=rewrite_system)
+        question_text = call_openrouter(prompt=f"Text: {clean_question}", system=rewrite_system)
         if question_text.startswith("[OpenRouter Error]"):
-            question_text = chunk_text
+            question_text = clean_question
     else:
-        question_text = chunk_text
+        question_text = clean_question
 
     return QuestionResponse(
         question=question_text,

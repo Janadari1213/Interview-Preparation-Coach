@@ -1,4 +1,4 @@
-"""Streamlit UI Application for Interview Preparation Coach with Role Selection."""
+"""Streamlit UI Application for Interview Preparation Coach with Modern Interactive Design."""
 
 import os
 import re
@@ -13,13 +13,92 @@ import streamlit as st
 from agents.orchestrator import InterviewOrchestrator
 
 # -------------------------------------------------
-# Page configuration
+# Page configuration & Modern Styling
 # -------------------------------------------------
 st.set_page_config(
     page_title="Interview Preparation Coach",
     page_icon="🎓",
     layout="wide",
 )
+
+# Custom CSS for Modern Dark Glassmorphism Aesthetics
+st.markdown("""
+<style>
+    /* Global Styles */
+    .stApp {
+        background-color: #0e1117;
+    }
+    
+    /* Card Container */
+    .custom-card {
+        background: linear-gradient(135deg, #1e2640 0%, #151b2e 100%);
+        border: 1px solid #2d3748;
+        border-radius: 14px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+    }
+    
+    /* Badges */
+    .badge-role {
+        background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    
+    .badge-topic {
+        background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    
+    .badge-diff {
+        background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-block;
+    }
+
+    /* Score Badges */
+    .score-green {
+        background-color: #059669;
+        color: white;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    .score-yellow {
+        background-color: #d97706;
+        color: white;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    .score-red {
+        background-color: #dc2626;
+        color: white;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+</style>
+""", unsafe_allow_html=unsafe_allow_html)
 
 st.title("🎓 Interview Preparation Coach")
 st.caption("Agentic AI Interview Preparation Assistant (IT41043)")
@@ -54,11 +133,18 @@ orchestrator: InterviewOrchestrator = st.session_state.orchestrator
 # Sidebar – session metrics & role selector
 # -------------------------------------------------
 with st.sidebar:
-    st.header("📋 Session Info")
+    st.header("📋 Session Dashboard")
     stats = orchestrator.get_summary()
-    st.metric("Total Score", f"{stats['running_score']} / {stats['questions_asked'] * 10}")
-    st.metric("Questions Answered", stats["questions_asked"])
+    q_count = stats["questions_asked"]
+    running = stats["running_score"]
+    max_pts = q_count * 10
+    pct = round((running / max_pts * 100), 1) if max_pts > 0 else 0.0
+
+    st.metric("Total Score", f"{running} / {max_pts}")
+    st.metric("Questions Answered", q_count)
     st.metric("Average Score", f"{stats['average_score']} / 10")
+    st.metric("Accuracy Rate", f"{pct}%")
+    
     st.divider()
     # Role selection (interactive)
     selected = st.selectbox(
@@ -77,6 +163,7 @@ with st.sidebar:
         st.session_state.t2_tip_res = None
         st.session_state.t3_expert_res = None
         st.rerun()
+
     st.divider()
     if st.button("🔄 Reset Session", type="secondary", use_container_width=True):
         st.session_state.orchestrator = InterviewOrchestrator()
@@ -98,40 +185,121 @@ tab1, tab2, tab3 = st.tabs([
 ])
 
 # -------------------------------------------------
-# Tab 1 – Practice Questions (role‑aware)
+# Tab 1 – Practice Questions (role‑aware & modern)
 # -------------------------------------------------
 with tab1:
     summary_stats = orchestrator.get_summary()
     running_score = summary_stats["running_score"]
     q_asked = summary_stats["questions_asked"]
     max_possible = q_asked * 10
+
+    # Prominent score header
     st.markdown(
-        f"### 📊 Live Performance – **{st.session_state.selected_role}**: **Score: {running_score}/{max_possible}** across **{q_asked}** question(s)"
+        f"### 📊 Active Track – **{st.session_state.selected_role}**: **Score: {running_score}/{max_possible}** ({q_asked} Attempted)"
     )
     st.divider()
 
+    # ---------------------------------------------
+    # FINISHED SESSION REPORT DASHBOARD
+    # ---------------------------------------------
     if st.session_state.t1_finished:
-        st.subheader("🏁 Session Summary")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total Score", f"{running_score} / {max_possible}")
-        with col2:
-            st.metric("Questions Asked", q_asked)
-        with col3:
-            st.metric("Average Score", f"{summary_stats['average_score']} / 10")
+        st.markdown("## 🎉 Interactive Session Performance Report")
+        
+        # Calculate summary grade badge
+        avg_s = summary_stats['average_score']
+        if avg_s >= 8.5:
+            grade_badge = "🌟 Master Class Performance (90%+ Accuracy)"
+            grade_color = "success"
+        elif avg_s >= 6.5:
+            grade_badge = "👍 Solid Competency (70%+ Accuracy)"
+            grade_color = "info"
+        else:
+            grade_badge = "💪 Practice Recommended (<65% Accuracy)"
+            grade_color = "warning"
+
+        if grade_color == "success":
+            st.success(f"**Overall Assessment:** {grade_badge}")
+        elif grade_color == "info":
+            st.info(f"**Overall Assessment:** {grade_badge}")
+        else:
+            st.warning(f"**Overall Assessment:** {grade_badge}")
+
+        # Metrics Columns
+        m1, m2, m3, m4 = st.columns(4)
+        with m1:
+            st.metric("Total Score Earned", f"{running_score} / {max_possible}")
+        with m2:
+            st.metric("Questions Attempted", q_asked)
+        with m3:
+            st.metric("Average Score", f"{avg_s} / 10")
+        with m4:
+            acc_val = round((running_score / max_possible * 100), 1) if max_possible > 0 else 0
+            st.metric("Accuracy Rate", f"{acc_val}%")
+
         st.divider()
+
+        # Interactive Performance Chart
         if summary_stats["history"]:
-            st.write("#### Question History")
+            st.markdown("### 📈 Question Performance Chart")
+            chart_data = {
+                f"Q{i+1}: {h['question'][:30]}...": h['score']
+                for i, h in enumerate(summary_stats["history"])
+            }
+            st.bar_chart(chart_data)
+
+            st.divider()
+
+            # Detailed Expandable Question Review
+            st.markdown("### 🔍 Detailed Question & Feedback Review")
             for idx, h in enumerate(summary_stats["history"], 1):
-                st.write(f"**Q{idx}:** {h['question']}")
-                st.caption(f"Score: {h['score']}/{h['max_score']} | Feedback: {h['feedback']}")
-                st.divider()
-        if st.button("Start New Practice Session"):
-            st.session_state.t1_finished = False
-            st.session_state.t1_question_res = None
-            st.session_state.t1_coach_res = None
-            st.session_state.t1_answered = False
-            st.rerun()
+                score_val = h['score']
+                icon = "🟢" if score_val >= 8 else ("🟡" if score_val >= 6 else "🔴")
+                
+                with st.expander(f"{icon} Question {idx}: {h['question'][:70]}... (Score: {score_val}/10)", expanded=(idx==1)):
+                    st.markdown(f"**Full Question:** {h['question']}")
+                    st.markdown(f"**Your Submitted Answer:**\n>{h['user_answer']}")
+                    st.markdown(f"**AI Reference Answer:**\n>{h['correct_answer']}")
+                    st.markdown(f"**Coach Feedback & Evaluation:**\n{h['feedback']}")
+
+            st.divider()
+
+            # Generate Downloadable Markdown Report
+            report_lines = [
+                f"# Interview Performance Report - {st.session_state.selected_role}",
+                f"**Total Score:** {running_score} / {max_possible}",
+                f"**Average Score:** {avg_s} / 10",
+                f"**Overall Grade:** {grade_badge}\n",
+                "## Detailed History\n"
+            ]
+            for i, item in enumerate(summary_stats["history"], 1):
+                report_lines.append(f"### Q{i}: {item['question']}")
+                report_lines.append(f"- **Your Answer:** {item['user_answer']}")
+                report_lines.append(f"- **Reference Answer:** {item['correct_answer']}")
+                report_lines.append(f"- **Score:** {item['score']} / {item['max_score']}")
+                report_lines.append(f"- **Feedback:** {item['feedback']}\n")
+
+            full_report_text = "\n".join(report_lines)
+
+            col_rep1, col_rep2 = st.columns([2, 1])
+            with col_rep1:
+                st.download_button(
+                    label="📥 Download Performance Report (.md)",
+                    data=full_report_text,
+                    file_name=f"interview_report_{st.session_state.selected_role.lower().replace(' ', '_')}.md",
+                    mime="text/markdown",
+                    type="primary"
+                )
+            with col_rep2:
+                if st.button("Start New Practice Session"):
+                    st.session_state.t1_finished = False
+                    st.session_state.t1_question_res = None
+                    st.session_state.t1_coach_res = None
+                    st.session_state.t1_answered = False
+                    st.rerun()
+
+    # ---------------------------------------------
+    # ACTIVE PRACTICE QUESTION VIEW
+    # ---------------------------------------------
     else:
         col_btn1, col_btn2 = st.columns([2, 1])
         with col_btn1:
@@ -151,19 +319,41 @@ with tab1:
                     print(f"[Tab 1 Error]: {e}")
                     st.error("Something went wrong retrieving your question — please try again.")
         with col_btn2:
-            if q_asked > 0 and st.button("Finish Session"):
+            if q_asked > 0 and st.button("Finish Session & View Report"):
                 st.session_state.t1_finished = True
                 st.rerun()
+
+        # Display Active Question Card
         if st.session_state.t1_question_res:
             q_data = st.session_state.t1_question_res
-            st.markdown(f"#### **Role:** {st.session_state.selected_role}")
-            st.markdown(f"#### **Topic:** {q_data.topic}")
-            st.info(q_data.question)
+            
+            st.markdown(f"""
+            <div class="custom-card">
+                <div>
+                    <span class="badge-role">🎯 {st.session_state.selected_role}</span>
+                    <span class="badge-topic">📌 {q_data.topic}</span>
+                </div>
+                <h3 style="margin-top: 15px; color: #f8fafc;">{q_data.question}</h3>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Interactive Hint Expander
+            with st.expander("💡 Need a Hint / Key Concepts to Include?"):
+                st.write(f"Focus on explaining the underlying **{q_data.topic}** principles clearly with practical examples or step-by-step logic.")
+
+            # Candidate Input Area
             user_ans_text = st.text_area(
-                "Your answer:", height=150, disabled=st.session_state.t1_answered, key="txt_user_answer"
+                "Type your response below:",
+                height=160,
+                disabled=st.session_state.t1_answered,
+                key="txt_user_answer"
             )
+            
+            word_count = len(user_ans_text.strip().split()) if user_ans_text.strip() else 0
+            st.caption(f"Word count: {word_count} words")
+
             if not st.session_state.t1_answered:
-                if st.button("Submit Answer", type="secondary", key="btn_submit_ans"):
+                if st.button("Submit Answer for AI Evaluation", type="secondary", key="btn_submit_ans"):
                     if not user_ans_text.strip():
                         st.warning("Please type an answer before submitting.")
                     else:
@@ -176,15 +366,25 @@ with tab1:
                         except Exception as e:
                             print(f"[Tab 1 Submit Error]: {e}")
                             st.error("Something went wrong retrieving your evaluation — please try again.")
+
+            # Display Evaluation Results
             if st.session_state.t1_coach_res:
                 c_res = st.session_state.t1_coach_res
-                score_str = f"Score: {c_res.score} / {c_res.max_score}"
+                score = c_res.score
+                max_s = c_res.max_score
+                
                 st.divider()
-                st.markdown("#### 📝 Coach Feedback")
-                if c_res.score >= 6:
-                    st.success(f"**{score_str}**\n\n{c_res.feedback}")
+                st.markdown("### 📝 AI Coach Evaluation")
+                
+                if score >= 8:
+                    st.success(f"**🏆 Excellent Answer! Score: {score}/{max_s}**\n\n{c_res.feedback}")
+                elif score >= 6:
+                    st.info(f"**👍 Good Attempt! Score: {score}/{max_s}**\n\n{c_res.feedback}")
                 else:
-                    st.warning(f"**{score_str}**\n\n{c_res.feedback}")
+                    st.warning(f"**💪 Needs Improvement. Score: {score}/{max_s}**\n\n{c_res.feedback}")
+
+                with st.expander("🔍 Compare with Reference Answer Key"):
+                    st.info(f"**Reference Answer Concept:**\n\n{q_data.correct_answer}")
 
 # -------------------------------------------------
 # Tab 2 – Interview Technique Coaching (role‑aware)
@@ -211,7 +411,6 @@ with tab2:
         t_data = st.session_state.t2_tip_res
         st.divider()
         st.subheader(f"📌 Role: {st.session_state.selected_role} | Topic: {t_data.topic}")
-        # Clean heading markdown syntax if present
         clean_tip_text = re.sub(r'^##\s*', '', t_data.question).strip()
         st.markdown(clean_tip_text)
 
@@ -348,10 +547,6 @@ with tab3:
     if st.session_state.t3_expert_res:
         e_data = st.session_state.t3_expert_res
         st.markdown(f"#### 🌐 Topic: **{e_data.topic}**")
-        
-        # Clean formatting: strip Markdown raw headings to prevent raw '## Template' blocks
         raw_text = e_data.question
         clean_text = re.sub(r'^##\s*', '', raw_text).strip()
-        
-        # Renders in clean, high-contrast blockquote card
         st.success(f"**Knowledge Insight:**\n\n{clean_text}")
