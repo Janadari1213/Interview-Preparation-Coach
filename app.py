@@ -12,6 +12,16 @@ load_dotenv(dotenv_path=_ROOT / ".env")
 import streamlit as st
 from agents.orchestrator import InterviewOrchestrator
 
+# Ensure Chroma DB exists at startup on Streamlit Cloud
+_chroma_dir = _ROOT / "kb" / "chroma_db"
+if not _chroma_dir.exists():
+    try:
+        print(f"[Startup] Chroma DB directory not found at {_chroma_dir}. Building vector database...")
+        from kb.ingest import ingest
+        ingest()
+    except Exception as _e:
+        print(f"[Startup Ingest Warning]: {_e}")
+
 # -------------------------------------------------
 # Page configuration & Glassmorphism Design System
 # -------------------------------------------------
